@@ -50,6 +50,8 @@ public class Input {
             ((edu.wpi.first.wpilibj.Encoder) encoder).setPIDSourceType(pidSourceType);
         }
 
+        public void setReversed(boolean reversed) { this.isReversed = reversed; }
+
         public boolean hasStopped() {
 
             if (getDistance() == lastStateUpdate) hasNotMovedCounter++;
