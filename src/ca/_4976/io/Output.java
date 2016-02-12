@@ -73,13 +73,21 @@ public class Output {
         DoubleSolenoid solenoid;
         Compressor compressor;
 
+        boolean isExtended;
+
         long onTimmerStart;
 
         Solenoid() { compressor = new Compressor(20); }
 
         Solenoid(int extend, int retract) { solenoid = new DoubleSolenoid(20, extend, retract); }
 
-        public void set(boolean extended) { solenoid.set(extended ? kForward : kReverse);}
+        public void set(boolean extended) {
+
+            isExtended = extended;
+            solenoid.set(extended ? kForward : kReverse);
+        }
+
+        public boolean get() { return isExtended; }
 
         public void init() { if (this == Solenoid.CONTROLLER) compressor.setClosedLoopControl(true); }
 

@@ -14,6 +14,8 @@ public class Input {
         DigitalInput input;
 
         Digital(int pin) { input = new DigitalInput(pin); }
+
+        public boolean get() { return input.get(); }
     }
 
     public enum Encoder implements PIDSource {

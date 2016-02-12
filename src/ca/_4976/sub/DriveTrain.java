@@ -28,7 +28,7 @@ public class DriveTrain {
             double steering = Primary.Stick.LEFT.horizontal();
 
             steering = steering < 0 ? Math.pow(steering, 2) : -Math.pow(steering, 2);
-            steering = Math.abs(steering) > 0.15 ? steering : 0;
+            steering = Math.abs(steering) > 0.08 ? steering : 0;
 
             double forward = Primary.Trigger.RIGHT.value() - Primary.Trigger.LEFT.value();
 
