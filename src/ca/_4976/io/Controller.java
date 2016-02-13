@@ -123,6 +123,7 @@ public class Controller {
         }
 
         public enum DPad {
+
             NOT(-1),
             NORTH(0),
             NORTH_EAST(45),
@@ -168,6 +169,7 @@ public class Controller {
     public static class Secondary {
 
         public enum Button {
+
             A(1),
             B(2),
             X(3),
@@ -203,6 +205,7 @@ public class Controller {
         }
 
         public enum Trigger {
+
             LEFT(2),
             RIGHT(3);
 

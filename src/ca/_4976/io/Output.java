@@ -8,9 +8,9 @@ public class Output {
 
     public enum Motor implements PIDOutput {
 
-        DRIVE_LEFT(new CANTalon[] {new CANTalon(11), new CANTalon(12)}, 1.0),
-        DRIVE_RIGHT(new CANTalon[] {new CANTalon(13), new CANTalon(14)}, 1.0),
-        SHOOTER(new Object[] {new CANTalon(15), new Talon(0)}, 1.0),
+        DRIVE_LEFT(new CANTalon[]{new CANTalon(11), new CANTalon(12)}, 1.0),
+        DRIVE_RIGHT(new CANTalon[]{new CANTalon(13), new CANTalon(14)}, 1.0),
+        SHOOTER(new Object[]{new CANTalon(15), new Talon(0)}, 1.0),
         INTAKE_WHEELS(new Talon(2), 1.0),
         INTAKE_ROLLERS(new Talon(3), -1.0);
 
@@ -19,7 +19,7 @@ public class Output {
 
         Motor(Object motor, double modifier) {
 
-            this.motors = new Object[] {motor};
+            this.motors = new Object[]{motor};
             this.modifier = modifier;
         }
 
@@ -88,7 +88,10 @@ public class Output {
             return voltage / motors.length;
         }
 
-        @Override public void pidWrite(double speed) { set(speed); }
+        @Override
+        public void pidWrite(double speed) {
+            set(speed);
+        }
 
         public double getEncVelocity() {
 
@@ -115,9 +118,13 @@ public class Output {
 
         long onTimerStart;
 
-        Solenoid() { compressor = new Compressor(20); }
+        Solenoid() {
+            compressor = new Compressor(20);
+        }
 
-        Solenoid(int extend, int retract) { solenoid = new DoubleSolenoid(20, extend, retract); }
+        Solenoid(int extend, int retract) {
+            solenoid = new DoubleSolenoid(20, extend, retract);
+        }
 
         public void set(boolean extended) {
 
@@ -125,11 +132,17 @@ public class Output {
             solenoid.set(extended ? kForward : kReverse);
         }
 
-        public boolean get() { return isExtended; }
+        public boolean get() {
+            return isExtended;
+        }
 
-        public void init() { if (this == Solenoid.CONTROLLER) compressor.setClosedLoopControl(true); }
+        public void init() {
+            if (this == Solenoid.CONTROLLER) compressor.setClosedLoopControl(true);
+        }
 
-        public void disabledInit() { if (this == Solenoid.CONTROLLER) compressor.setClosedLoopControl(false); }
+        public void disabledInit() {
+            if (this == Solenoid.CONTROLLER) compressor.setClosedLoopControl(false);
+        }
 
         public void periodic() {
 
@@ -139,11 +152,9 @@ public class Output {
                 Solenoid.INTAKE.periodic();
                 Solenoid.HOOD.periodic();
 
-            } else
+            } else if (solenoid.get() == kOff) onTimerStart = System.currentTimeMillis();
 
-                if (solenoid.get() == kOff) onTimerStart = System.currentTimeMillis();
-
-                else if (System.currentTimeMillis() - onTimerStart > 60) solenoid.set(kOff);
+            else if (System.currentTimeMillis() - onTimerStart > 60) solenoid.set(kOff);
         }
     }
 }

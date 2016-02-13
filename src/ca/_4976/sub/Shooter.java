@@ -25,7 +25,8 @@ public class Shooter {
 
         switch (state) {
 
-            default: break;
+            default:
+                break;
 
             case 0:
 
@@ -75,7 +76,8 @@ public class Shooter {
                     Motor.INTAKE_ROLLERS.set(0);
                     state = 0;
 
-                } break;
+                }
+                break;
 
         }
 

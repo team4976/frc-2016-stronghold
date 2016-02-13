@@ -38,11 +38,9 @@ public class DriveTrain {
             if (Primary.DPad.NORTH.isDownOnce()) Solenoid.GEAR.set(false);
             else if (Primary.DPad.SOUTH.isDownOnce()) Solenoid.GEAR.set(true);
 
-        } else
+        } else if (turnCount < 0) if (autoTurnLeft(90)) turnCount++;
 
-            if (turnCount < 0) if (autoTurnLeft(90)) turnCount++;
-
-            else if (turnCount > 0) if (autoTurnRight(90)) turnCount--;
+        else if (turnCount > 0) if (autoTurnRight(90)) turnCount--;
     }
 
     public void disabledInit() {
@@ -138,7 +136,8 @@ public class DriveTrain {
             this.isMotor2Revered = isMotor2Revered;
         }
 
-        @Override public void pidWrite(double output) {
+        @Override
+        public void pidWrite(double output) {
 
             motor1.set(isMotor1Revered ? -output : output);
             motor2.set(isMotor2Revered ? -output : output);

@@ -1,7 +1,5 @@
 package ca._4976.sub;
 
-import ca._4976.Main;
-
 import static ca._4976.io.Output.*;
 import static ca._4976.io.Input.*;
 import static ca._4976.io.Controller.*;
@@ -20,7 +18,8 @@ public class Intake {
 
         switch (state) {
 
-            default: break;
+            default:
+                break;
 
             case 0:
 
@@ -50,12 +49,12 @@ public class Intake {
                 } else state = 0;
         }
 
-        if (Math.abs(Secondary.Trigger.LEFT.value() - Secondary.Trigger.RIGHT.value()) > 0.1 ) {
+        if (Math.abs(Secondary.Trigger.LEFT.value() - Secondary.Trigger.RIGHT.value()) > 0.1) {
 
             state = -1;
             Motor.INTAKE_ROLLERS.set(Secondary.Trigger.RIGHT.value() - Secondary.Trigger.LEFT.value());
 
-        } else if ( state == -1) state = 0;
+        } else if (state == -1) state = 0;
 
         if (Math.abs(Secondary.Stick.RIGHT.vertical()) < 0.1) {
 

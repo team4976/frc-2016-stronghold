@@ -1,5 +1,6 @@
 package ca._4976.io;
 
+import ca._4976.color.ISL29125;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.*;
 
@@ -19,7 +20,9 @@ public class Input {
             this.inverted = inverted;
         }
 
-        public boolean get() { return inverted != input.get(); }
+        public boolean get() {
+            return inverted != input.get();
+        }
     }
 
     public enum Encoder implements PIDSource {
@@ -40,7 +43,6 @@ public class Input {
             ((edu.wpi.first.wpilibj.Encoder) encoder).setDistancePerPulse(dpp);
         }
 
-
         Encoder(Output.Motor motor, double scaler, PIDSourceType pidSourceType) {
 
             motor.setPIDSourceType(pidSourceType);
@@ -56,7 +58,9 @@ public class Input {
             ((edu.wpi.first.wpilibj.Encoder) encoder).setPIDSourceType(pidSourceType);
         }
 
-        public void setReversed(boolean reversed) { this.isReversed = reversed; }
+        public void setReversed(boolean reversed) {
+            this.isReversed = reversed;
+        }
 
         public boolean hasStopped() {
 
@@ -72,7 +76,8 @@ public class Input {
             if (encoder instanceof edu.wpi.first.wpilibj.Encoder)
                 return ((edu.wpi.first.wpilibj.Encoder) encoder).getRate();
 
-            else return isReversed ? -((Output.Motor) encoder).getEncVelocity() / scale : ((Output.Motor) encoder).getEncVelocity() / scale;
+            else
+                return isReversed ? -((Output.Motor) encoder).getEncVelocity() / scale : ((Output.Motor) encoder).getEncVelocity() / scale;
         }
 
         public double getDistance() {
@@ -85,45 +90,81 @@ public class Input {
                     ((Output.Motor) encoder).getEncVelocity() / scale;
         }
 
-        @Override public double pidGet() {
+        @Override
+        public double pidGet() {
 
             if (getPIDSourceType() == kRate) return getVelocity();
 
             else return getDistance();
         }
 
-        @Override public void setPIDSourceType(PIDSourceType pidSourceType) {
+        @Override
+        public void setPIDSourceType(PIDSourceType pidSourceType) {
 
             if (encoder instanceof edu.wpi.first.wpilibj.Encoder)
-                ((edu.wpi.first.wpilibj.Encoder)encoder).setPIDSourceType(pidSourceType);
+                ((edu.wpi.first.wpilibj.Encoder) encoder).setPIDSourceType(pidSourceType);
 
             else ((Output.Motor) encoder).setPIDSourceType(pidSourceType);
         }
 
-        @Override public PIDSourceType getPIDSourceType() {
+        @Override
+        public PIDSourceType getPIDSourceType() {
 
             if (encoder instanceof edu.wpi.first.wpilibj.Encoder)
-                return ((edu.wpi.first.wpilibj.Encoder)encoder).getPIDSourceType();
+                return ((edu.wpi.first.wpilibj.Encoder) encoder).getPIDSourceType();
 
             else return ((Output.Motor) encoder).getPIDSourceType();
         }
     }
 
     public enum MXP implements PIDSource {
+
         NAV_X;
 
         AHRS nav;
 
-        MXP() { nav = new AHRS(SerialPort.Port.kMXP); }
+        MXP() {
+            nav = new AHRS(SerialPort.Port.kMXP);
+        }
 
-        public void reset() { nav.reset(); }
+        public void reset() {
+            nav.reset();
+        }
 
-        public void getYaw() { nav.getYaw(); }
+        public void getYaw() {
+            nav.getYaw();
+        }
 
-        @Override public void setPIDSourceType(PIDSourceType pidSourceType) { nav.setPIDSourceType(pidSourceType); }
+        @Override
+        public void setPIDSourceType(PIDSourceType pidSourceType) {
+            nav.setPIDSourceType(pidSourceType);
+        }
 
-        @Override public PIDSourceType getPIDSourceType() { return nav.getPIDSourceType(); }
+        @Override
+        public PIDSourceType getPIDSourceType() {
+            return nav.getPIDSourceType();
+        }
 
-        @Override public double pidGet() { return nav.pidGet(); }
+        @Override
+        public double pidGet() {
+            return nav.pidGet();
+        }
     }
+
+    public enum I2C {
+
+        LINE;
+
+        ISL29125 colorSensor;
+
+        I2C() {
+            colorSensor = new ISL29125(edu.wpi.first.wpilibj.I2C.Port.kOnboard);
+        }
+
+        public void callibrate() {
+
+        }
+
+    }
+
 }

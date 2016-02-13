@@ -1,6 +1,5 @@
 package ca._4976;
 
-import ca._4976.io.Controller;
 import ca._4976.io.Input;
 import ca._4976.io.Output;
 import ca._4976.sub.*;
@@ -12,12 +11,14 @@ public class Main extends IterativeRobot {
     Intake intake = new Intake();
     Shooter shooter = new Shooter();
 
-    @Override public void robotInit() {
+    @Override
+    public void robotInit() {
 
         Input.Encoder.SHOOTER.setReversed(true);
     }
 
-    @Override public void disabledInit() {
+    @Override
+    public void disabledInit() {
 
         drive.disabledInit();
         intake.disabledInit();
@@ -25,12 +26,14 @@ public class Main extends IterativeRobot {
         Output.Solenoid.CONTROLLER.disabledInit();
     }
 
-    @Override public void teleopInit() {
+    @Override
+    public void teleopInit() {
 
         Output.Solenoid.CONTROLLER.init();
     }
 
-    @Override public void teleopPeriodic() {
+    @Override
+    public void teleopPeriodic() {
 
         System.out.println(Input.Encoder.SHOOTER.getVelocity());
         Output.Solenoid.CONTROLLER.periodic();
