@@ -12,13 +12,40 @@ public class Output {
         DRIVE_RIGHT(new CANTalon[] {new CANTalon(13), new CANTalon(14)}, 1.0),
         SHOOTER(new Object[] {new CANTalon(15), new Talon(0)}, 1.0),
         INTAKE_WHEELS(new Talon(2), 1.0),
-        INTAKE_ROLLERS(new Talon(3), 1.0);
+        INTAKE_ROLLERS(new Talon(3), -1.0);
 
         Object[] motors;
+        double modifier;
 
-        Motor(Object motor, double modifier) {}
+        Motor(Object motor, double modifier) {
 
-        Motor(Object[] motors, double modifier) {}
+            this.motors = new Object[] {motor};
+            this.modifier = modifier;
+        }
+
+        Motor(Object[] motors, double modifier) {
+
+            this.motors = motors;
+            this.modifier = modifier;
+        }
+
+        public void setPIDSourceType(PIDSourceType pidSourceType) {
+
+            for (Object i : motors) {
+
+                if (i instanceof CANTalon) ((CANTalon) i).setPIDSourceType(pidSourceType);
+            }
+        }
+
+        public PIDSourceType getPIDSourceType() {
+
+            for (Object i : motors) {
+
+                if (i instanceof CANTalon) return ((CANTalon) i).getPIDSourceType();
+            }
+
+            return null;
+        }
 
         public void set(double speed) {
 
@@ -26,10 +53,11 @@ public class Output {
 
                 //TODO add limit from watchdog
 
-                if (i instanceof CANTalon) ((CANTalon) i).set(speed);
+                if (i instanceof CANTalon) ((CANTalon) i).set(speed * modifier);
 
-                else if (i instanceof Talon) ((Talon) i).set(speed);
+                else if (i instanceof Talon) ((Talon) i).set(speed * modifier);
             }
+
         }
 
         public double getOutputCurrent() {
@@ -61,6 +89,16 @@ public class Output {
         }
 
         @Override public void pidWrite(double speed) { set(speed); }
+
+        public double getEncVelocity() {
+
+            for (Object i : motors) {
+
+                if (i instanceof CANTalon) return ((CANTalon) i).getEncVelocity();
+            }
+
+            return 0;
+        }
     }
 
     public enum Solenoid {
@@ -73,9 +111,9 @@ public class Output {
         DoubleSolenoid solenoid;
         Compressor compressor;
 
-        boolean isExtended;
+        boolean isExtended = false;
 
-        long onTimmerStart;
+        long onTimerStart;
 
         Solenoid() { compressor = new Compressor(20); }
 
@@ -103,9 +141,9 @@ public class Output {
 
             } else
 
-                if (solenoid.get() == kOff) onTimmerStart = System.currentTimeMillis();
+                if (solenoid.get() == kOff) onTimerStart = System.currentTimeMillis();
 
-                else if (System.currentTimeMillis() - onTimmerStart > 20) solenoid.set(kOff);
+                else if (System.currentTimeMillis() - onTimerStart > 60) solenoid.set(kOff);
         }
     }
 }

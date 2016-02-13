@@ -9,25 +9,30 @@ public class Input {
 
     public enum Digital {
 
-        BALL_DETECTED(4);
+        BALL_DETECTED(4, true);
 
         DigitalInput input;
+        boolean inverted;
 
-        Digital(int pin) { input = new DigitalInput(pin); }
+        Digital(int pin, boolean inverted) {
+            input = new DigitalInput(pin);
+            this.inverted = inverted;
+        }
 
-        public boolean get() { return input.get(); }
+        public boolean get() { return inverted != input.get(); }
     }
 
     public enum Encoder implements PIDSource {
 
         DRIVE_LEFT(0, 1, 0.1),
         DRIVE_RIGHT(2, 3, 0.1),
-        SHOOTER(5, 6, 0.1, kRate);
+        SHOOTER(Output.Motor.SHOOTER, 6.872 * 2, kRate);
 
-        Object encoder;
+        Object encoder = false;
         boolean isReversed;
         double lastStateUpdate = 0;
         int hasNotMovedCounter = 0;
+        double scale;
 
         Encoder(int a, int b, double dpp) {
 
@@ -35,14 +40,13 @@ public class Input {
             ((edu.wpi.first.wpilibj.Encoder) encoder).setDistancePerPulse(dpp);
         }
 
-        Encoder(CANTalon.FeedbackDevice feedbackDevice, double scaler) {
 
+        Encoder(Output.Motor motor, double scaler, PIDSourceType pidSourceType) {
 
-        }
+            motor.setPIDSourceType(pidSourceType);
 
-        Encoder(CANTalon.FeedbackDevice feedbackDevice, double scaler, PIDSourceType pidSourceType) {
-
-
+            this.encoder = motor;
+            this.scale = scaler;
         }
 
         Encoder(int a, int b, double dpp, PIDSourceType pidSourceType) {
@@ -60,9 +64,7 @@ public class Input {
 
             else hasNotMovedCounter = 0;
 
-            if (hasNotMovedCounter > 2) return true;
-
-            else return false;
+            return hasNotMovedCounter > 2;
         }
 
         public double getVelocity() {
@@ -70,7 +72,7 @@ public class Input {
             if (encoder instanceof edu.wpi.first.wpilibj.Encoder)
                 return ((edu.wpi.first.wpilibj.Encoder) encoder).getRate();
 
-            else return isReversed ? -((CANTalon) encoder).getEncVelocity() : ((CANTalon) encoder).getEncVelocity();
+            else return isReversed ? -((Output.Motor) encoder).getEncVelocity() / scale : ((Output.Motor) encoder).getEncVelocity() / scale;
         }
 
         public double getDistance() {
@@ -78,21 +80,16 @@ public class Input {
             if (encoder instanceof edu.wpi.first.wpilibj.Encoder)
                 return ((edu.wpi.first.wpilibj.Encoder) encoder).getDistance();
 
-            else return isReversed ? -((CANTalon) encoder).getEncVelocity() : ((CANTalon) encoder).getEncPosition();
+
+            else return isReversed ? -((Output.Motor) encoder).getEncVelocity() / scale :
+                    ((Output.Motor) encoder).getEncVelocity() / scale;
         }
 
         @Override public double pidGet() {
 
-            if (encoder instanceof edu.wpi.first.wpilibj.Encoder)
-                return ((edu.wpi.first.wpilibj.Encoder) encoder).get();
+            if (getPIDSourceType() == kRate) return getVelocity();
 
-            else {
-
-                if (((CANTalon) encoder).getPIDSourceType() == kRate)
-                    return isReversed ? -((CANTalon) encoder).getEncVelocity() : ((CANTalon) encoder).getEncVelocity();
-
-                else return isReversed ? -((CANTalon) encoder).getEncVelocity() : ((CANTalon) encoder).getEncVelocity();
-            }
+            else return getDistance();
         }
 
         @Override public void setPIDSourceType(PIDSourceType pidSourceType) {
@@ -100,7 +97,7 @@ public class Input {
             if (encoder instanceof edu.wpi.first.wpilibj.Encoder)
                 ((edu.wpi.first.wpilibj.Encoder)encoder).setPIDSourceType(pidSourceType);
 
-            else ((CANTalon) encoder).setPIDSourceType(pidSourceType);
+            else ((Output.Motor) encoder).setPIDSourceType(pidSourceType);
         }
 
         @Override public PIDSourceType getPIDSourceType() {
@@ -108,7 +105,7 @@ public class Input {
             if (encoder instanceof edu.wpi.first.wpilibj.Encoder)
                 return ((edu.wpi.first.wpilibj.Encoder)encoder).getPIDSourceType();
 
-            else return ((CANTalon) encoder).getPIDSourceType();
+            else return ((Output.Motor) encoder).getPIDSourceType();
         }
     }
 

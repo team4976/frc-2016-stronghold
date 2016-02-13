@@ -9,7 +9,7 @@ import static ca._4976.io.Controller.*;
 
 public class Shooter {
 
-    PIDController pid = new PIDController(0, 0, 0, 0, Encoder.SHOOTER, Motor.SHOOTER);
+    PIDController pid = new PIDController(0.0001, 0, 0, 0, Encoder.SHOOTER, Motor.SHOOTER);
 
     int state = 0;
     long waitTimeFlag;
@@ -25,18 +25,25 @@ public class Shooter {
 
         switch (state) {
 
+            default: break;
+
             case 0:
 
-                if (Primary.Button.B.isDownOnce()) state = 1;
+
+                if (Primary.Button.B.isDownOnce()) {
+
+                    System.out.println("Shoot Pressed!");
+                    state = 1;
+                }
 
                 break;
             case 1:
 
                 if (Digital.BALL_DETECTED.get()) {
 
-                    pid.setSetpoint(6000);
+                    pid.setSetpoint(8000);
                     pid.enable();
-                    Output.Solenoid.INTAKE.set(false);
+                    Output.Solenoid.INTAKE.set(true);
                     state = 2;
 
                 } else state = 0;
@@ -44,7 +51,7 @@ public class Shooter {
                 break;
             case 2:
 
-                if (Primary.Button.B.isDownOnce() && Math.abs(pid.getError()) < 100) {
+                if (Primary.Button.B.isDownOnce()) {
 
                     Motor.INTAKE_ROLLERS.set(1);
                     state = 3;
@@ -53,20 +60,33 @@ public class Shooter {
                 break;
             case 3:
 
-                if (!Digital.BALL_DETECTED.get()) { waitTimeFlag = System.currentTimeMillis(); }
+                if (!Digital.BALL_DETECTED.get()) {
+                    waitTimeFlag = System.currentTimeMillis();
+                    state = 4;
+                }
 
                 break;
             case 4:
 
-                if (System.currentTimeMillis() - waitTimeFlag < 500) {
+                if (System.currentTimeMillis() - waitTimeFlag > 500) {
 
                     pid.disable();
                     Motor.SHOOTER.set(0);
+                    Motor.INTAKE_ROLLERS.set(0);
                     state = 0;
 
                 } break;
+
         }
 
-        if (Solenoid.INTAKE.get()) { pid.disable(); Motor.SHOOTER.set(0); }
+        if (Math.abs(Secondary.Stick.LEFT.vertical()) > 0.1) {
+
+            state = -1;
+            System.out.println("Shooter RPM: " + Encoder.SHOOTER.getVelocity());
+            Motor.SHOOTER.set(Secondary.Stick.LEFT.vertical());
+
+        } else if (state == -1) state = 0;
+
+        if (Secondary.Button.A.isDownOnce()) Solenoid.HOOD.set(!Solenoid.HOOD.get());
     }
 }

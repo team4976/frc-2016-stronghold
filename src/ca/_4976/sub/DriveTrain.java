@@ -32,11 +32,11 @@ public class DriveTrain {
 
             double forward = Primary.Trigger.RIGHT.value() - Primary.Trigger.LEFT.value();
 
-            Motor.DRIVE_LEFT.set(forward + steering);
-            Motor.DRIVE_RIGHT.set(-forward + steering);
+            Motor.DRIVE_LEFT.set(-forward + steering);
+            Motor.DRIVE_RIGHT.set(forward + steering);
 
-            if (Primary.DPad.NORTH.isDownOnce()) Solenoid.GEAR.set(true);
-            else if (Primary.DPad.SOUTH.isDownOnce()) Solenoid.GEAR.set(false);
+            if (Primary.DPad.NORTH.isDownOnce()) Solenoid.GEAR.set(false);
+            else if (Primary.DPad.SOUTH.isDownOnce()) Solenoid.GEAR.set(true);
 
         } else
 
