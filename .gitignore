@@ -17,3 +17,6 @@
 
 build/
 *.jar
+
+## FRC ##
+sysProps.xml
