@@ -54,12 +54,16 @@ public class Intake {
             state = -1;
             Motor.INTAKE_ROLLERS.set(Secondary.Trigger.RIGHT.value() - Secondary.Trigger.LEFT.value());
 
-        } else if (state == -1) state = 0;
-
-        if (Math.abs(Secondary.Stick.RIGHT.vertical()) < 0.1) {
+        } else if (Math.abs(Secondary.Stick.RIGHT.vertical()) > 0.1) {
 
             state = -1;
             Motor.INTAKE_WHEELS.set(Secondary.Stick.RIGHT.vertical());
+
+        } else if (state == -1) {
+
+            state = 0;
+            Motor.INTAKE_WHEELS.set(0);
+            Motor.INTAKE_ROLLERS.set(0);
         }
 
         if (Secondary.Button.A.isDownOnce()) Solenoid.INTAKE.set(!Solenoid.INTAKE.get());

@@ -29,7 +29,7 @@ public class Input {
 
         DRIVE_LEFT(0, 1, 0.1),
         DRIVE_RIGHT(2, 3, 0.1),
-        SHOOTER(Output.Motor.SHOOTER, 6.872 * 2, kRate);
+        SHOOTER(Output.Motor.SHOOTER, 6.82 * 2, kRate);
 
         Object encoder = false;
         boolean isReversed;

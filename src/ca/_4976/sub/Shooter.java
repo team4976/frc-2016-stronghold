@@ -9,7 +9,7 @@ import static ca._4976.io.Controller.*;
 
 public class Shooter {
 
-    PIDController pid = new PIDController(0.0001, 0, 0, 0, Encoder.SHOOTER, Motor.SHOOTER);
+    PIDController pid = new PIDController(0.001, 0, 0, 0, Encoder.SHOOTER, Motor.SHOOTER);
 
     int state = 0;
     long waitTimeFlag;
@@ -42,7 +42,7 @@ public class Shooter {
 
                 if (Digital.BALL_DETECTED.get()) {
 
-                    pid.setSetpoint(8000);
+                    pid.setSetpoint(6000);
                     pid.enable();
                     Output.Solenoid.INTAKE.set(true);
                     state = 2;
@@ -81,14 +81,20 @@ public class Shooter {
 
         }
 
-        if (Math.abs(Secondary.Stick.LEFT.vertical()) > 0.1) {
+        if (Math.abs(Secondary.Stick.LEFT.vertical()) > 0.2) {
 
             state = -1;
             System.out.println("Shooter RPM: " + Encoder.SHOOTER.getVelocity());
             Motor.SHOOTER.set(Secondary.Stick.LEFT.vertical());
 
-        } else if (state == -1) state = 0;
+        } else if (state == -1) {
 
-        if (Secondary.Button.A.isDownOnce()) Solenoid.HOOD.set(!Solenoid.HOOD.get());
+            state = 0;
+            Motor.SHOOTER.set(0);
+        }
+
+        if (Secondary.Button.B.isDownOnce()) Solenoid.HOOD.set(!Solenoid.HOOD.get());
+
+        if (Secondary.Button.X.isDownOnce()) state = 0;
     }
 }
