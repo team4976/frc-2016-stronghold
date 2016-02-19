@@ -1,29 +1,30 @@
 package ca._4976.sub;
 
-import ca._4976.io.Input;
+
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
 
 import static ca._4976.io.Controller.*;
 import static ca._4976.io.Output.*;
+import static ca._4976.io.Input.*;
 
 public class DriveTrain {
 
     int turnCount = 0;
     int state = 0;
 
-    PIDController turnPID = new PIDController(0, 0, 0, 0,
-            Input.MXP.NAV_X, new MotorPair(Motor.DRIVE_LEFT, Motor.DRIVE_RIGHT, false, false));
+    PIDController turnPID = new PIDController(0.01, 0, 0, 0,
+            MXP.NAV_X, new MotorPair(Motor.DRIVE_LEFT, Motor.DRIVE_RIGHT, true, true));
 
     PIDController drivePID = new PIDController(0, 0, 0, 0,
-            Input.MXP.NAV_X, new MotorPair(Motor.DRIVE_LEFT, Motor.DRIVE_RIGHT, false, true));
+            MXP.NAV_X, new MotorPair(Motor.DRIVE_LEFT, Motor.DRIVE_RIGHT, false, true));
 
     public void teleopPeriodic() {
 
         if (Primary.DPad.EAST.isDownOnce()) turnCount++;
         else if (Primary.DPad.WEST.isDownOnce()) turnCount--;
 
-        if (turnCount == 0) {
+        if (turnCount == 0 && !Primary.Button.LEFT_STICK.isDown()) {
 
             double steering = Primary.Stick.LEFT.horizontal();
 
@@ -41,6 +42,26 @@ public class DriveTrain {
         } else if (turnCount < 0) if (autoTurnLeft(90)) turnCount++;
 
         else if (turnCount > 0) if (autoTurnRight(90)) turnCount--;
+
+        else if (turnCount == 0 ) turnPID.disable();
+
+        else if (Primary.Button.LEFT_STICK.isDown()) {
+
+            double steering = Primary.Stick.LEFT.horizontal();
+            steering = Math.abs(steering) > 0.08 ? steering : 0;
+            steering *= 4;
+
+            if (Digital.IR_L.get() && Digital.IR_R.get()) {
+
+                Motor.DRIVE_LEFT.set(0);
+                Motor.DRIVE_RIGHT.set(0);
+
+            } else {
+
+                Motor.DRIVE_LEFT.set(steering);
+                Motor.DRIVE_RIGHT.set(steering);
+            }
+        }
     }
 
     public void disabledInit() {
@@ -56,19 +77,19 @@ public class DriveTrain {
         switch (state) {
 
             case 0:
-                Input.MXP.NAV_X.reset();
+                MXP.NAV_X.reset();
                 turnPID.setSetpoint(-degree);
                 turnPID.enable();
                 state++;
                 return false;
             case 1:
-                if (Input.Encoder.DRIVE_LEFT.hasStopped() && turnPID.getError() < 2) {
+                if (Encoder.DRIVE_RIGHT.hasStopped() && Math.abs(turnPID.getError()) < 10) {
 
                     turnPID.disable();
                     state = 0;
                     return true;
 
-                } else return false;
+                }
         }
 
         return false;
@@ -79,13 +100,13 @@ public class DriveTrain {
         switch (state) {
 
             case 0:
-                Input.MXP.NAV_X.reset();
+                MXP.NAV_X.reset();
                 turnPID.setSetpoint(degree);
                 turnPID.enable();
                 state++;
                 return false;
             case 1:
-                if (Input.Encoder.DRIVE_LEFT.hasStopped() && turnPID.getError() < 2) {
+                if (Encoder.DRIVE_RIGHT.hasStopped() && turnPID.getError() < 2) {
 
                     turnPID.disable();
                     state = 0;
@@ -102,13 +123,13 @@ public class DriveTrain {
         switch (state) {
 
             case 0:
-                Input.MXP.NAV_X.reset();
+                MXP.NAV_X.reset();
                 drivePID.setSetpoint(meters);
                 drivePID.enable();
                 state++;
                 return false;
             case 1:
-                if (Input.Encoder.DRIVE_LEFT.hasStopped() && turnPID.getError() < 2) {
+                if (Encoder.DRIVE_RIGHT.hasStopped() && turnPID.getError() < 2) {
 
                     drivePID.disable();
                     state = 0;

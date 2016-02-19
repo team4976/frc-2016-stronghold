@@ -57,7 +57,16 @@ public class Output {
 
                 else if (i instanceof Talon) ((Talon) i).set(speed * modifier);
             }
+        }
 
+        public void reset() {
+
+            for (Object i : motors) {
+
+                //TODO add limit from watchdog
+
+                if (i instanceof CANTalon) ((CANTalon) i).reset();
+            }
         }
 
         public double getOutputCurrent() {

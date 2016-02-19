@@ -10,7 +10,9 @@ public class Input {
 
     public enum Digital {
 
-        BALL_DETECTED(4, true);
+        BALL_DETECTED(4, true),
+        IR_L(5, true),
+        IR_R(6, true);
 
         DigitalInput input;
         boolean inverted;
@@ -27,8 +29,8 @@ public class Input {
 
     public enum Encoder implements PIDSource {
 
-        DRIVE_LEFT(0, 1, 0.1),
-        DRIVE_RIGHT(2, 3, 0.1),
+        DRIVE_RIGHT(0, 1, 0.00065, kDisplacement),
+        SCALER(2, 3, 0.1, kDisplacement),
         SHOOTER(Output.Motor.SHOOTER, 6.82 * 2, kRate);
 
         Object encoder = false;
@@ -36,12 +38,6 @@ public class Input {
         double lastStateUpdate = 0;
         int hasNotMovedCounter = 0;
         double scale;
-
-        Encoder(int a, int b, double dpp) {
-
-            encoder = new edu.wpi.first.wpilibj.Encoder(a, b);
-            ((edu.wpi.first.wpilibj.Encoder) encoder).setDistancePerPulse(dpp);
-        }
 
         Encoder(Output.Motor motor, double scaler, PIDSourceType pidSourceType) {
 
@@ -88,6 +84,16 @@ public class Input {
 
             else return isReversed ? -((Output.Motor) encoder).getEncVelocity() / scale :
                     ((Output.Motor) encoder).getEncVelocity() / scale;
+        }
+
+        public void reset() {
+
+            if (encoder instanceof edu.wpi.first.wpilibj.Encoder)
+                ((edu.wpi.first.wpilibj.Encoder) encoder).reset();
+
+
+            else ((Output.Motor) encoder).reset();
+
         }
 
         @Override
