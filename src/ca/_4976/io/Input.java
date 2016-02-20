@@ -160,17 +160,45 @@ public class Input {
         LINE;
 
         ISL29125 colorSensor;
+        int[] colorOn, color1, color2;
+        int error;
 
         I2C() {
             colorSensor = new ISL29125(edu.wpi.first.wpilibj.I2C.Port.kOnboard);
+            setErrorPercent(5);
+        }
+
+        public void setErrorPercent(double errorPercent) {
+            error = (int) (65535.0 * (errorPercent / 100));
         }
 
         public void callibrate() {
-
+            if (Controller.Secondary.Button.A.isDown())
+                color1 = colorSensor.readColor();
+            if (Controller.Secondary.Button.B.isDown())
+                color2 = colorSensor.readColor();
         }
 
         public boolean crossed() {
+            if (colorOn == null) {
+                if (withinError(colorSensor.readColor(), color1))
+                    colorOn = color1;
+                else if (withinError(colorSensor.readColor(), color2))
+                    colorOn = color2;
+            } else {
+                if (colorOn == color1 && withinError(colorSensor.readColor(), color2))
+                    return true;
+                else if (colorOn == color2 && withinError(colorSensor.readColor(), color2))
+                    return true;
+            }
             return false;
+        }
+
+        private boolean withinError(int[] given, int[] expected) {
+            for (int i = 0; i < 3; i++)
+                if (!(given[i] <= expected[i] + error && given[i] >= expected[i] - error))
+                    return false;
+            return true;
         }
 
     }
