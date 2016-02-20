@@ -46,7 +46,7 @@ public class Main extends IterativeRobot {
 
             switch (position) {
 
-                case 0:
+                case 0://Lowbar
                     Output.Solenoid.INTAKE.set(false);
                     Output.Solenoid.HOOD.set(false);
                     Output.Motor.DRIVE_LEFT.set(1.0);
@@ -58,41 +58,52 @@ public class Main extends IterativeRobot {
                     }
 
                     if (state == 0) {
-                        if (position == 0) {
-                            state = 1;
+                        if (position == 0) {//needs to be compatable with a switch or network table
+                            state = 1;  //Bot on left side Turning right
                         }
                         if (position == 1) {
-                            state = 2;
+                            state = 2;  //Bot on right side Turning left
                         }
                     }
 
-                    if (state == 1) {
+                    if (state == 1) {   //Bot on left side Turning right
                         if (Input.Digital.IR_L.get() && Input.Digital.IR_R.get()) {
                             Output.Motor.DRIVE_LEFT.set(0.0);
                             Output.Motor.DRIVE_RIGHT.set(0.0);
                             System.out.println("it worked");
-                            state = 0;
+                            Output.Motor.SHOOTER.set(1);
+                            Output.Motor.INTAKE_ROLLERS.set(-0.3);
+                            state = 3;  //Now bot is done
                         } else {
                             Output.Motor.DRIVE_LEFT.set(-0.4);
                             Output.Motor.DRIVE_RIGHT.set(-0.4);
                         }
 
-                        Output.Motor.SHOOTER.set(1);
-                        Output.Motor.INTAKE_ROLLERS.set(-0.3);
+                        
 
                     }
 
-                    if (state == 2) {
+                    if (state == 2) {   //Bot on right side Turning left
                         if (Input.Digital.IR_L.get() && Input.Digital.IR_R.get()) {
                             Output.Motor.DRIVE_LEFT.set(0.0);
                             Output.Motor.DRIVE_RIGHT.set(0.0);
                             System.out.println("it worked");
-                            state = 0;
+                            Output.Motor.SHOOTER.set(1);
+                            Output.Motor.INTAKE_ROLLERS.set(-0.3);
+                            state = 3;  //Now bot is done
                         } else {
                             Output.Motor.DRIVE_LEFT.set(0.4);
                             Output.Motor.DRIVE_RIGHT.set(0.4);
                         }
+                        
+                    
 
+                    }
+                    if (state == 3) {   //Now bot is done
+                        Output.Motor.SHOOTER.set(0.0);
+                        Output.Motor.INTAKE_ROLLERS.set(-0.0);
+                        Output.Motor.DRIVE_LEFT.set(0.0);
+                        Output.Motor.DRIVE_RIGHT.set(0.0);
                     }
 
                     break;
