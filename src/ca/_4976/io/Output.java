@@ -123,7 +123,6 @@ public class Output {
         }
 
         public void set(boolean extended) {
-
             isExtended = extended;
             solenoid.set(extended ? kForward : kReverse);
         }

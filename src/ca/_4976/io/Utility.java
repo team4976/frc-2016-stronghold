@@ -9,8 +9,6 @@ public class Utility {
     public static void startDelay(long delayTime, String name) {
         if (!delays.containsKey(name))
             delays.put(name, new Delay(System.currentTimeMillis(), delayTime));
-        else if (delays.get(name).over())
-            delays.put(name, new Delay(System.currentTimeMillis(), delayTime));
     }
 
     public static boolean checkDelay(String name) {

@@ -13,8 +13,6 @@ public class Shooter {
     boolean SHOOTER = false;     // true = 75%, false = golden efficiency
     double GRIPPER = 0.0;    //true=on' false=off
     boolean HOOD = false;
-    boolean justShot = false;
-    long delay;
 
     public void robotInit() {
         pid.setSetpoint(6000);
