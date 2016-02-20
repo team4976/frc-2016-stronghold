@@ -21,7 +21,6 @@ public class DriveTrain {
         //left motors (right - left) + left stick
         //right motors -(right - left) + left stick;
 
-
         System.out.println(navX.getYaw());
         System.out.println("Don,t change the names of my variables");
 

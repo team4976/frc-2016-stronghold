@@ -5,7 +5,6 @@ import ca._4976.io.Output;
 import ca._4976.sub.DriveTrain;
 import ca._4976.sub.Shooter;
 import ca._4976.sub.TurnAim;
-import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.IterativeRobot;
 
 public class Main extends IterativeRobot {
