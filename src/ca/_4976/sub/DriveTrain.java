@@ -5,9 +5,6 @@ import ca._4976.io.Output;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SerialPort;
 
-/**
- * Created by Aavin & Michael Mann on 1/23/2016.
- */
 public class DriveTrain {
     int state = 0;
     int head1 = 0;
@@ -28,17 +25,16 @@ public class DriveTrain {
         System.out.println(navX.getYaw());
         System.out.println("Don,t change the names of my variables");
 
-        if (Controller.Primary.Stick.LEFT.horizontal() > 0){
+        if (Controller.Primary.Stick.LEFT.horizontal() > 0) {
             sterring = Math.pow(Controller.Primary.Stick.LEFT.horizontal(), 2);
-        }
-        else {
+        } else {
             sterring = -Math.pow(Controller.Primary.Stick.LEFT.horizontal(), 2);
         }
-        if (Math.abs(sterring) < 0.1){
+        if (Math.abs(sterring) < 0.1) {
             sterring = 0;
         }
-        Output.Motor.DRIVE_LEFT.set(-(Controller.Primary.Trigger.RIGHT.value() - Controller.Primary.Trigger.LEFT.value())- sterring);
-        Output.Motor.DRIVE_RIGHT.set((Controller.Primary.Trigger.RIGHT.value() - Controller.Primary.Trigger.LEFT.value())- sterring);
+        Output.Motor.DRIVE_LEFT.set(-(Controller.Primary.Trigger.RIGHT.value() - Controller.Primary.Trigger.LEFT.value()) - sterring);
+        Output.Motor.DRIVE_RIGHT.set((Controller.Primary.Trigger.RIGHT.value() - Controller.Primary.Trigger.LEFT.value()) - sterring);
 
 
         if (Controller.Primary.DPad.SOUTH.isDownOnce()) {

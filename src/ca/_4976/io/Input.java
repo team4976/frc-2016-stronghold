@@ -167,6 +167,10 @@ public class Input {
 
         }
 
+        public boolean crossed() {
+            return false;
+        }
+
     }
 
 }

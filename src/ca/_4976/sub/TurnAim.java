@@ -5,20 +5,17 @@ import ca._4976.io.Input;
 import ca._4976.io.Output;
 import edu.wpi.first.wpilibj.IterativeRobot;
 
-/**
- * Created by Aavin & Michael Mann on 1/23/2016.
- */
 public class TurnAim {
     int state = 0;
 
     public void teleopPeriodic() {
 
         if (state == 0) {
-                    if (Controller.Primary.DPad.WEST.isDownOnce() == true) {
-                        state = 1;
-                    }
-                    if (Controller.Primary.Button.LEFT_STICK.isDown() == true) {
-                        state = 2;
+            if (Controller.Primary.DPad.WEST.isDownOnce() == true) {
+                state = 1;
+            }
+            if (Controller.Primary.Button.LEFT_STICK.isDown() == true) {
+                state = 2;
             }
         }
         if (state == 1) {
