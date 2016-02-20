@@ -2,6 +2,7 @@ package ca._4976;
 
 import ca._4976.io.Input;
 import ca._4976.io.Output;
+import ca._4976.io.Utility;
 import ca._4976.sub.DriveTrain;
 import ca._4976.sub.Shooter;
 import ca._4976.sub.TurnAim;
@@ -13,6 +14,8 @@ public class Main extends IterativeRobot {
     TurnAim turnaim = new TurnAim();
     Shooter shooter = new Shooter();
 
+    int autonomousPosition = 1;
+
     public void robotInit() {
         shooter.robotInit();
     }
@@ -22,6 +25,8 @@ public class Main extends IterativeRobot {
     }
 
     public void autonomousInit() {
+        //TODO: write position checker
+        //autonomousPosition = getAutoPosition();
     }
 
     public void disabledInit() {
@@ -35,90 +40,67 @@ public class Main extends IterativeRobot {
     }
 
     public void autonomousPeriodic() {
-        int defence = 0;
         int state = 0;
-        int position = 0;
 
-        switch (defence) {
-
-            default:
-
-            switch (position) {
-
-                case 0://Lowbar
-                    Output.Solenoid.INTAKE.set(false);
-                    Output.Solenoid.HOOD.set(false);
-                    Output.Motor.DRIVE_LEFT.set(1.0);
-                    Output.Motor.DRIVE_RIGHT.set(1.0);
-
-                    if (Input.I2C.LINE.crossed()) {
-                        Output.Motor.DRIVE_LEFT.set(0.0);
-                        Output.Motor.DRIVE_RIGHT.set(0.0);
-                    }
-
-                    if (state == 0) {
-                        if (position == 0) {//needs to be compatable with a switch or network table
-                            state = 1;  //Bot on left side Turning right
-                        }
-                        if (position == 1) {
-                            state = 2;  //Bot on right side Turning left
-                        }
-                    }
-
-                    if (state == 1) {   //Bot on left side Turning right
-                        if (Input.Digital.IR_L.get() && Input.Digital.IR_R.get()) {
-                            Output.Motor.DRIVE_LEFT.set(0.0);
-                            Output.Motor.DRIVE_RIGHT.set(0.0);
-                            System.out.println("it worked");
-                            Output.Motor.SHOOTER.set(1);
-                            Output.Motor.INTAKE_ROLLERS.set(-0.3);
-                            state = 3;  //Now bot is done
-                        } else {
-                            Output.Motor.DRIVE_LEFT.set(-0.4);
-                            Output.Motor.DRIVE_RIGHT.set(-0.4);
-                        }
-
-                        
-
-                    }
-
-                    if (state == 2) {   //Bot on right side Turning left
-                        if (Input.Digital.IR_L.get() && Input.Digital.IR_R.get()) {
-                            Output.Motor.DRIVE_LEFT.set(0.0);
-                            Output.Motor.DRIVE_RIGHT.set(0.0);
-                            System.out.println("it worked");
-                            Output.Motor.SHOOTER.set(1);
-                            Output.Motor.INTAKE_ROLLERS.set(-0.3);
-                            state = 3;  //Now bot is done
-                        } else {
-                            Output.Motor.DRIVE_LEFT.set(0.4);
-                            Output.Motor.DRIVE_RIGHT.set(0.4);
-                        }
-                        
-                    
-
-                    }
-                    if (state == 3) {   //Now bot is done
-                        Output.Motor.SHOOTER.set(0.0);
-                        Output.Motor.INTAKE_ROLLERS.set(-0.0);
-                        Output.Motor.DRIVE_LEFT.set(0.0);
-                        Output.Motor.DRIVE_RIGHT.set(0.0);
-                    }
-
-                    break;
-
-                case 1:
-                    Output.Motor.DRIVE_LEFT.set(1.0);
-                    Output.Motor.DRIVE_RIGHT.set(1.0);
-
-                    if (Input.I2C.LINE.crossed()) {
-
-                        Output.Motor.DRIVE_LEFT.set(0.0);
-                        Output.Motor.DRIVE_RIGHT.set(0.0);
-
-                    }
-
+        if (state == 0) {
+            // Lower intake and hood to get under lowbar
+            if (autonomousPosition == 1) {
+                Output.Solenoid.INTAKE.set(true);
+                Output.Solenoid.HOOD.set(false);
             }
+
+            // Drive into defense
+            Output.Motor.DRIVE_LEFT.set(1.0);
+            Output.Motor.DRIVE_RIGHT.set(-1.0);
+
+            Utility.startDelay(3000, "LineCrossCancel");
+            Utility.startDelay(1000, "DefenseSpeed");
+
+            if (Utility.checkDelay("DefenseSpeed")) {
+                Output.Motor.DRIVE_LEFT.set(0.25);
+                Output.Motor.DRIVE_RIGHT.set(-0.25);
+                Output.Motor.SHOOTER.set(1);
+                Utility.startDelay(2000, "Cock");
+            }
+
+            if (Input.I2C.LINE.crossed() || Utility.checkDelay("LineCrossCancel")) {
+                Output.Motor.DRIVE_LEFT.set(0.0);
+                Output.Motor.DRIVE_RIGHT.set(0.0);
+                state = 1;
+            }
+        }
+
+        if (state == 1) {   // Bot turning
+            Output.Solenoid.HOOD.set(true);
+            Output.Solenoid.INTAKE.set(false);
+
+            if (Input.Digital.IR_L.get() && Input.Digital.IR_R.get()) {
+                Output.Motor.DRIVE_LEFT.set(0.0);
+                Output.Motor.DRIVE_RIGHT.set(0.0);
+
+                if (Utility.checkDelay("Cock")) {
+                    Utility.startDelay(1000, "Fire");
+                    Output.Motor.INTAKE_ROLLERS.set(-0.3);
+                }
+
+                if (Utility.checkDelay("Fire"))
+                    state = 2;
+            } else {
+                if (autonomousPosition >= 4) {
+                    Output.Motor.DRIVE_LEFT.set(-0.4);
+                    Output.Motor.DRIVE_RIGHT.set(-0.4);
+                } else {
+                    Output.Motor.DRIVE_LEFT.set(0.4);
+                    Output.Motor.DRIVE_RIGHT.set(0.4);
+                }
+            }
+        }
+
+        if (state == 2) {
+            Output.Motor.SHOOTER.set(0.0);
+            Output.Motor.INTAKE_ROLLERS.set(0.0);
+            Output.Motor.DRIVE_LEFT.set(0.0);
+            Output.Motor.DRIVE_RIGHT.set(0.0);
         }
     }
 }

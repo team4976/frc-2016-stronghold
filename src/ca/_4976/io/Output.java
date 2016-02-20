@@ -18,13 +18,11 @@ public class Output {
         double modifier;
 
         Motor(Object motor, double modifier) {
-
             this.motors = new Object[]{motor};
             this.modifier = modifier;
         }
 
         Motor(Object[] motors, double modifier) {
-
             this.motors = motors;
             this.modifier = modifier;
         }
@@ -32,16 +30,16 @@ public class Output {
         public void setPIDSourceType(PIDSourceType pidSourceType) {
 
             for (Object i : motors) {
-
-                if (i instanceof CANTalon) ((CANTalon) i).setPIDSourceType(pidSourceType);
+                if (i instanceof CANTalon)
+                    ((CANTalon) i).setPIDSourceType(pidSourceType);
             }
         }
 
         public PIDSourceType getPIDSourceType() {
 
             for (Object i : motors) {
-
-                if (i instanceof CANTalon) return ((CANTalon) i).getPIDSourceType();
+                if (i instanceof CANTalon)
+                    return ((CANTalon) i).getPIDSourceType();
             }
 
             return null;
@@ -51,11 +49,11 @@ public class Output {
 
             for (Object i : motors) {
 
-                //TODO add limit from watchdog
+                if (i instanceof CANTalon)
+                    ((CANTalon) i).set(speed * modifier);
 
-                if (i instanceof CANTalon) ((CANTalon) i).set(speed * modifier);
-
-                else if (i instanceof Talon) ((Talon) i).set(speed * modifier);
+                else if (i instanceof Talon)
+                    ((Talon) i).set(speed * modifier);
             }
 
         }
@@ -65,9 +63,8 @@ public class Output {
             double current = 0;
 
             for (Object i : motors) {
-
-                if (i instanceof CANTalon) current += ((CANTalon) i).getOutputCurrent();
-
+                if (i instanceof CANTalon)
+                    current += ((CANTalon) i).getOutputCurrent();
                 else return -1;
             }
 
@@ -79,9 +76,8 @@ public class Output {
             double voltage = 0;
 
             for (Object i : motors) {
-
-                if (i instanceof CANTalon) voltage += ((CANTalon) i).getOutputVoltage();
-
+                if (i instanceof CANTalon)
+                    voltage += ((CANTalon) i).getOutputVoltage();
                 else return -1;
             }
 
@@ -96,8 +92,8 @@ public class Output {
         public double getEncVelocity() {
 
             for (Object i : motors) {
-
-                if (i instanceof CANTalon) return ((CANTalon) i).getEncVelocity();
+                if (i instanceof CANTalon)
+                    return ((CANTalon) i).getEncVelocity();
             }
 
             return 0;
@@ -137,11 +133,13 @@ public class Output {
         }
 
         public void init() {
-            if (this == Solenoid.CONTROLLER) compressor.setClosedLoopControl(true);
+            if (this == Solenoid.CONTROLLER)
+                compressor.setClosedLoopControl(true);
         }
 
         public void disabledInit() {
-            if (this == Solenoid.CONTROLLER) compressor.setClosedLoopControl(false);
+            if (this == Solenoid.CONTROLLER)
+                compressor.setClosedLoopControl(false);
         }
 
         public void periodic() {
@@ -152,9 +150,11 @@ public class Output {
                 Solenoid.INTAKE.periodic();
                 Solenoid.HOOD.periodic();
 
-            } else if (solenoid.get() == kOff) onTimerStart = System.currentTimeMillis();
+            } else if (solenoid.get() == kOff)
+                onTimerStart = System.currentTimeMillis();
 
-            else if (System.currentTimeMillis() - onTimerStart > 60) solenoid.set(kOff);
+            else if (System.currentTimeMillis() - onTimerStart > 60)
+                solenoid.set(kOff);
         }
     }
 }

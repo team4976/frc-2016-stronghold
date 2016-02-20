@@ -9,9 +9,10 @@ public class DriveTrain {
     int state = 0;
     int head1 = 0;
     int head2 = 0;
-    AHRS navX = new AHRS(SerialPort.Port.kMXP);
-    double sterring;
 
+    AHRS navX = new AHRS(SerialPort.Port.kMXP);
+
+    double steering;
 
     public void teleopPeriodic() {
         Controller.Primary.Trigger.RIGHT.value();
@@ -22,19 +23,17 @@ public class DriveTrain {
         //right motors -(right - left) + left stick;
 
         System.out.println(navX.getYaw());
-        System.out.println("Don,t change the names of my variables");
 
         if (Controller.Primary.Stick.LEFT.horizontal() > 0) {
-            sterring = Math.pow(Controller.Primary.Stick.LEFT.horizontal(), 2);
+            steering = Math.pow(Controller.Primary.Stick.LEFT.horizontal(), 2);
         } else {
-            sterring = -Math.pow(Controller.Primary.Stick.LEFT.horizontal(), 2);
+            steering = -Math.pow(Controller.Primary.Stick.LEFT.horizontal(), 2);
         }
-        if (Math.abs(sterring) < 0.1) {
-            sterring = 0;
+        if (Math.abs(steering) < 0.1) {
+            steering = 0;
         }
-        Output.Motor.DRIVE_LEFT.set(-(Controller.Primary.Trigger.RIGHT.value() - Controller.Primary.Trigger.LEFT.value()) - sterring);
-        Output.Motor.DRIVE_RIGHT.set((Controller.Primary.Trigger.RIGHT.value() - Controller.Primary.Trigger.LEFT.value()) - sterring);
-
+        Output.Motor.DRIVE_LEFT.set(-(Controller.Primary.Trigger.RIGHT.value() - Controller.Primary.Trigger.LEFT.value()) - steering);
+        Output.Motor.DRIVE_RIGHT.set((Controller.Primary.Trigger.RIGHT.value() - Controller.Primary.Trigger.LEFT.value()) - steering);
 
         if (Controller.Primary.DPad.SOUTH.isDownOnce()) {
             Output.Solenoid.GEAR.set(true);

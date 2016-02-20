@@ -66,8 +66,8 @@ public class Input {
 
         public boolean hasStopped() {
 
-            if (getDistance() == lastStateUpdate) hasNotMovedCounter++;
-
+            if (getDistance() == lastStateUpdate)
+                hasNotMovedCounter++;
             else hasNotMovedCounter = 0;
 
             return hasNotMovedCounter > 2;
@@ -87,15 +87,15 @@ public class Input {
             if (encoder instanceof edu.wpi.first.wpilibj.Encoder)
                 return ((edu.wpi.first.wpilibj.Encoder) encoder).getDistance();
 
-
-            else return isReversed ? -((Output.Motor) encoder).getEncVelocity() / scale :
-                    ((Output.Motor) encoder).getEncVelocity() / scale;
+            else
+                return isReversed ? -((Output.Motor) encoder).getEncVelocity() / scale : ((Output.Motor) encoder).getEncVelocity() / scale;
         }
 
         @Override
         public double pidGet() {
 
-            if (getPIDSourceType() == kRate) return getVelocity();
+            if (getPIDSourceType() == kRate)
+                return getVelocity();
 
             else return getDistance();
         }
@@ -106,7 +106,8 @@ public class Input {
             if (encoder instanceof edu.wpi.first.wpilibj.Encoder)
                 ((edu.wpi.first.wpilibj.Encoder) encoder).setPIDSourceType(pidSourceType);
 
-            else ((Output.Motor) encoder).setPIDSourceType(pidSourceType);
+            else
+                ((Output.Motor) encoder).setPIDSourceType(pidSourceType);
         }
 
         @Override
@@ -115,7 +116,8 @@ public class Input {
             if (encoder instanceof edu.wpi.first.wpilibj.Encoder)
                 return ((edu.wpi.first.wpilibj.Encoder) encoder).getPIDSourceType();
 
-            else return ((Output.Motor) encoder).getPIDSourceType();
+            else
+                return ((Output.Motor) encoder).getPIDSourceType();
         }
     }
 
