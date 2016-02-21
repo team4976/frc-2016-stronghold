@@ -3,105 +3,74 @@ package ca._4976.sub;
 import ca._4976.io.Controller;
 import ca._4976.io.Input;
 import ca._4976.io.Output;
+import ca._4976.io.Utility;
 import edu.wpi.first.wpilibj.PIDController;
 
 public class Shooter {
 
     PIDController pid = new PIDController(1.0e-4, 0, 0.001, 0, Input.Encoder.SHOOTER, Output.Motor.SHOOTER);
 
-    boolean IntakeState = true;    // false = down, true = up
-    boolean SHOOTER = false;     // true = 75%, false = golden efficiency
-    double GRIPPER = 0.0;    //true=on' false=off
-    boolean HOOD = false;
-
     public void robotInit() {
         pid.setSetpoint(6000);
     }
 
     public void teleopPeriodic() {
-        if (IntakeState == false) {
-            if (Controller.Primary.Button.B.isDownOnce()) {
-                Output.Solenoid.INTAKE.set(true);
-                IntakeState = true;
-                if (SHOOTER == false) {
-                    System.out.println("PID enabled");
-                    pid.enable();
-                    SHOOTER = true;
-                } else {
-                    Output.Motor.INTAKE_ROLLERS.set(-1);
-                    GRIPPER = -1;
-                }
-            }
-            if (Input.Digital.BALL_DETECTED.get()) {
-                Output.Motor.INTAKE_ROLLERS.set(0.0);
-            }
-            if (Controller.Secondary.Button.X.isDownOnce()) {
-                Output.Solenoid.INTAKE.set(true);
-                IntakeState = true;
-            }
-        }
-        if (IntakeState == true) {
+
+        // Intake is lowered
+        if (Output.Solenoid.INTAKE.get()) {
+            System.out.println("down");
             if (Controller.Primary.Button.A.isDownOnce()) {
+                Output.Motor.INTAKE_ROLLERS.set(1.0);
+            }
+            if (Controller.Primary.Button.B.isDownOnce()) {
+                Output.Motor.SHOOTER.set(1.0);
                 Output.Solenoid.INTAKE.set(false);
-                IntakeState = false;
-                pid.disable();
-                Output.Motor.SHOOTER.set(0.0);
-                SHOOTER = false;
-                Output.Motor.INTAKE_ROLLERS.set(-1);
             }
             if (Controller.Primary.Button.X.isDownOnce()) {
-                System.out.println("Setting the shooter motor to 0");
-                pid.disable();
                 Output.Motor.SHOOTER.set(0);
-                Output.Motor.INTAKE_ROLLERS.set(0.0);
+                Output.Motor.INTAKE_ROLLERS.set(0);
+                Output.Solenoid.INTAKE.set(false);
+            }
+            if (Input.Digital.BALL_DETECTED.get())
+                Output.Motor.INTAKE_ROLLERS.set(0);
+            // Intake is raised
+        } else {
+            if (Controller.Primary.Button.A.isDownOnce()) {
+                Output.Solenoid.INTAKE.set(true);
+                pid.disable();
+                Output.Motor.SHOOTER.set(0.0);
+                Output.Motor.INTAKE_ROLLERS.set(1);
             }
             if (Controller.Primary.Button.B.isDownOnce()) {
-
-                if (SHOOTER == true) {
-                    Output.Motor.INTAKE_ROLLERS.set(-1);
-                    GRIPPER = -1;
-                } else {
-                    System.out.println("PID enabled 2");
-                    pid.enable();
-                    SHOOTER = true;
-                }
+                Output.Motor.INTAKE_ROLLERS.set(1);
+                Utility.startDelay(1000, "ShooterDelay");
             }
-
+            if (Controller.Primary.Button.X.isDownOnce()) {
+                Output.Motor.SHOOTER.set(0);
+                Output.Motor.INTAKE_ROLLERS.set(0);
+            }
         }
-//        if(!Input.Digital.BALL_DETECTED.get()) {
-//            if (!justShot) {
-//                delay = System.currentTimeMillis();
-//                justShot = true;
-//            } else if (System.currentTimeMillis() - delay > 500) {
-//                Output.Motor.SHOOTER.set(0);
-//                justShot = false;
-//            }
-//        }
+
+        if (Utility.checkDelay("ShooterDelay")) {
+            Output.Motor.INTAKE_ROLLERS.set(0);
+            Output.Motor.SHOOTER.set(0);
+            Utility.removeDelay("ShooterDelay");
+        }
+
         if (Math.abs(Controller.Secondary.Stick.RIGHT.vertical()) > 0.1)
             Output.Motor.INTAKE_ROLLERS.set(Controller.Secondary.Stick.RIGHT.vertical());
-
-        if (Controller.Secondary.Button.A.isDownOnce()) {
-            Output.Solenoid.INTAKE.set(!IntakeState);
-            IntakeState = !IntakeState;
-        }
-        if (Math.abs(Controller.Secondary.Stick.LEFT.vertical()) > 0.1) {
+        if (Controller.Secondary.Button.A.isDownOnce())
+            Output.Solenoid.INTAKE.set(!Output.Solenoid.INTAKE.get());
+        if (Math.abs(Controller.Secondary.Stick.LEFT.vertical()) > 0.1)
             Output.Motor.SHOOTER.set(Controller.Secondary.Stick.LEFT.vertical());
-        }
-
-        if (Controller.Secondary.DPad.NORTH.isDownOnce()) {
+        if (Controller.Secondary.DPad.NORTH.isDownOnce())
             Output.Solenoid.HOOD.set(true);
-        }
-        if (Controller.Secondary.DPad.SOUTH.isDownOnce()) {
+        if (Controller.Secondary.DPad.SOUTH.isDownOnce())
             Output.Solenoid.HOOD.set(false);
-        }
-        if (Controller.Secondary.Trigger.LEFT.value() > 0.1) {
+        if (Controller.Secondary.Trigger.LEFT.value() > 0.1)
             Output.Motor.INTAKE_ROLLERS.set(Controller.Secondary.Trigger.LEFT.value());
-        }
-        if (Controller.Secondary.Trigger.RIGHT.value() > 0.1) {
+        if (Controller.Secondary.Trigger.RIGHT.value() > 0.1)
             Output.Motor.INTAKE_ROLLERS.set(Controller.Secondary.Trigger.RIGHT.value());
-        }
-
-
     }
 
 }

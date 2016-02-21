@@ -160,45 +160,81 @@ public class Input {
         LINE;
 
         ISL29125 colorSensor;
-        int[] colorOn, color1, color2;
-        int error;
+        int[] color1, color2;
+
+        double error;
 
         I2C() {
             colorSensor = new ISL29125(edu.wpi.first.wpilibj.I2C.Port.kOnboard);
-            setErrorPercent(5);
-        }
 
-        public void setErrorPercent(double errorPercent) {
-            error = (int) (65535.0 * (errorPercent / 100));
+            Preferences prefs = Preferences.getInstance();
+
+            // Load color1 calibration
+            color1 = new int[3];
+            color1[0] = prefs.getInt("color1R", 0);
+            color1[1] = prefs.getInt("color1G", 0);
+            color1[2] = prefs.getInt("color1B", 0);
+
+            // Load color2 calibration
+            color2 = new int[3];
+            color2[0] = prefs.getInt("color2R", 0);
+            color2[1] = prefs.getInt("color2G", 0);
+            color2[2] = prefs.getInt("color2B", 0);
+
+            error = prefs.getDouble("error", 0.0);
+            colorSensor.init();
         }
 
         public void callibrate() {
-            if (Controller.Secondary.Button.A.isDown())
+            if (Controller.Primary.Button.A.isDownOnce()) {
+                Preferences prefs = Preferences.getInstance();
+                prefs.putDouble("error", 0.0);
                 color1 = colorSensor.readColor();
-            if (Controller.Secondary.Button.B.isDown())
+
+                prefs.putInt("color1R", color1[0]);
+                prefs.putInt("color1G", color1[1]);
+                prefs.putInt("color1B", color1[2]);
+            }
+            if (Controller.Primary.Button.B.isDownOnce()) {
+                Preferences prefs = Preferences.getInstance();
                 color2 = colorSensor.readColor();
+
+                prefs.putInt("color2R", color2[0]);
+                prefs.putInt("color2G", color2[1]);
+                prefs.putInt("color2B", color2[2]);
+            }
+            printCalibration();
         }
 
         public boolean crossed() {
-            if (colorOn == null) {
-                if (withinError(colorSensor.readColor(), color1))
-                    colorOn = color1;
-                else if (withinError(colorSensor.readColor(), color2))
-                    colorOn = color2;
-            } else {
-                if (colorOn == color1 && withinError(colorSensor.readColor(), color2))
-                    return true;
-                else if (colorOn == color2 && withinError(colorSensor.readColor(), color2))
-                    return true;
-            }
-            return false;
-        }
-
-        private boolean withinError(int[] given, int[] expected) {
+            Preferences prefs = Preferences.getInstance();
+            error = prefs.getDouble("error", 0.0);
             for (int i = 0; i < 3; i++)
-                if (!(given[i] <= expected[i] + error && given[i] >= expected[i] - error))
+                if (!withinError(colorSensor.readColor()[i], color2[i]))
                     return false;
             return true;
+        }
+
+        private boolean withinError(int given, int expected) {
+            double difference = Math.abs(given - expected) * error;
+            return (given + difference >= expected && given - difference <= expected);
+        }
+
+        public void printCalibration() {
+            System.out.print("Color Sensor: ");
+            for (int i = 0; i < 3; i++)
+                System.out.print(colorSensor.readColor()[i] + ",");
+            System.out.println();
+            System.out.print("Color 2: ");
+            if (color1 != null)
+                for (int i = 0; i < 3; i++)
+                    System.out.print(color1[i] + ",");
+            System.out.println();
+            System.out.print("Color 1: ");
+            if (color2 != null)
+                for (int i = 0; i < 3; i++)
+                    System.out.print(color2[i] + ",");
+            System.out.println();
         }
 
     }

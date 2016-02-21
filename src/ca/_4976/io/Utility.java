@@ -12,7 +12,14 @@ public class Utility {
     }
 
     public static boolean checkDelay(String name) {
-        return delays.get(name).over();
+        if (delays.containsKey(name))
+            return delays.get(name).over();
+        return false;
+    }
+
+    public static void removeDelay(String name) {
+        if (delays.containsKey(name))
+            delays.remove(name);
     }
 
     public static class Delay {

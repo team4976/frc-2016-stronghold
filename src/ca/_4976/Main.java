@@ -33,8 +33,14 @@ public class Main extends IterativeRobot {
     }
 
     public void teleopPeriodic() {
+        Output.Solenoid.CONTROLLER.periodic();
         driveTrain.teleopPeriodic();
         shooter.teleopPeriodic();
+        System.out.println(Input.I2C.LINE.crossed());
+    }
+
+    public void testPeriodic() {
+        Input.I2C.LINE.callibrate();
     }
 
     public void autonomousPeriodic() {

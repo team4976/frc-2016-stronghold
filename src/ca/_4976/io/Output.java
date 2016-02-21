@@ -8,11 +8,11 @@ public class Output {
 
     public enum Motor implements PIDOutput {
 
-        DRIVE_LEFT(new CANTalon[]{new CANTalon(11), new CANTalon(12)}, 1.0),
-        DRIVE_RIGHT(new CANTalon[]{new CANTalon(13), new CANTalon(14)}, 1.0),
-        SHOOTER(new Object[]{new CANTalon(15), new Talon(0)}, 1.0),
-        INTAKE_WHEELS(new Talon(2), 1.0),
-        INTAKE_ROLLERS(new Talon(3), 1.0);
+        DRIVE_LEFT(getDriveLeft(), 1.0),
+        DRIVE_RIGHT(getDriveRight(), 1.0),
+        SHOOTER(getShooter(), 1.0),
+        INTAKE_WHEELS(getIntakeWheels(), 1.0),
+        INTAKE_ROLLERS(getIntakeRollers(), 1.0);
 
         Object[] motors;
         double modifier;
@@ -98,12 +98,32 @@ public class Output {
 
             return 0;
         }
+
+        public static Object[] getDriveLeft() {
+            return new Talon[]{new Talon(3)};
+        }
+
+        public static Object[] getDriveRight() {
+            return new Talon[]{new Talon(1)};
+        }
+
+        public static Object[] getShooter() {
+            return new Object[]{new CANTalon(11), new Talon(2)};
+        }
+
+        public static Object getIntakeWheels() {
+            return new Talon(4);
+        }
+
+        public static Object getIntakeRollers() {
+            return new Talon(5);
+        }
     }
 
     public enum Solenoid {
 
         GEAR(0, 1),
-        INTAKE(2, 3),
+        INTAKE(3, 2),
         HOOD(4, 5),
         CONTROLLER;
 
