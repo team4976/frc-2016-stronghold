@@ -162,7 +162,7 @@ public class Input {
         ISL29125 colorSensor;
         int[] color1, color2;
 
-        double error;
+        double error = 0.5;
 
         I2C() {
             colorSensor = new ISL29125(edu.wpi.first.wpilibj.I2C.Port.kOnboard);
@@ -181,14 +181,12 @@ public class Input {
             color2[1] = prefs.getInt("color2G", 0);
             color2[2] = prefs.getInt("color2B", 0);
 
-            error = prefs.getDouble("error", 0.0);
             colorSensor.init();
         }
 
         public void callibrate() {
             if (Controller.Primary.Button.A.isDownOnce()) {
                 Preferences prefs = Preferences.getInstance();
-                prefs.putDouble("error", 0.0);
                 color1 = colorSensor.readColor();
 
                 prefs.putInt("color1R", color1[0]);
@@ -207,8 +205,6 @@ public class Input {
         }
 
         public boolean crossed() {
-            Preferences prefs = Preferences.getInstance();
-            error = prefs.getDouble("error", 0.0);
             for (int i = 0; i < 3; i++)
                 if (!withinError(colorSensor.readColor()[i], color2[i]))
                     return false;

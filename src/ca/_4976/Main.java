@@ -26,6 +26,11 @@ public class Main extends IterativeRobot {
     public void autonomousInit() {
         //autonomousPosition = getAutoPosition();
         autonomousState = 0;
+        Utility.removeDelay("StartAuto");
+        Utility.removeDelay("LineCrossCancel");
+        Utility.removeDelay("DefenseSpeed");
+        Utility.removeDelay("Cock");
+        Utility.removeDelay("Fire");
     }
 
     public void disabledInit() {
@@ -49,15 +54,19 @@ public class Main extends IterativeRobot {
 
             // Lower intake and hood if at lowbar
             if (autonomousPosition == 1) {
+                Utility.startDelay(3000, "StartAuto");
                 Output.Solenoid.INTAKE.set(true);
                 Output.Solenoid.HOOD.set(false);
+            } else {
+                Utility.startDelay(0, "StartAuto");
             }
 
-            // Drive into defense
-            driveTrain.forward(1.0);
-
-            Utility.startDelay(3000, "LineCrossCancel");
-            Utility.startDelay(1000, "DefenseSpeed");
+            if (Utility.checkDelay("StartAuto")) {
+                // Drive into defense
+                driveTrain.forward(0.5);
+                Utility.startDelay(3000, "LineCrossCancel");
+                Utility.startDelay(1000, "DefenseSpeed");
+            }
 
             // After 1 second
             if (Utility.checkDelay("DefenseSpeed")) {
