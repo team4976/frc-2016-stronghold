@@ -17,9 +17,10 @@ public class Utility {
         return false;
     }
 
-    public static void removeDelay(String name) {
-        if (delays.containsKey(name))
-            delays.remove(name);
+    public static void removeDelay(String... names) {
+        for (String name : names)
+            if (delays.containsKey(name))
+                delays.remove(name);
     }
 
     public static class Delay {

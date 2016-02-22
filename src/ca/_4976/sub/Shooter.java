@@ -18,7 +18,6 @@ public class Shooter {
 
         // Intake is lowered
         if (Output.Solenoid.INTAKE.get()) {
-            System.out.println("down");
             if (Controller.Primary.Button.A.isDownOnce()) {
                 Output.Motor.INTAKE_ROLLERS.set(1.0);
             }

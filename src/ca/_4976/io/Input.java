@@ -162,12 +162,11 @@ public class Input {
         ISL29125 colorSensor;
         int[] color1, color2;
 
-        double error = 0.5;
+        double error;
+        Preferences prefs = Preferences.getInstance();
 
         I2C() {
             colorSensor = new ISL29125(edu.wpi.first.wpilibj.I2C.Port.kOnboard);
-
-            Preferences prefs = Preferences.getInstance();
 
             // Load color1 calibration
             color1 = new int[3];
@@ -181,12 +180,12 @@ public class Input {
             color2[1] = prefs.getInt("color2G", 0);
             color2[2] = prefs.getInt("color2B", 0);
 
+            error = prefs.getDouble("error", 0.0);
             colorSensor.init();
         }
 
         public void callibrate() {
             if (Controller.Primary.Button.A.isDownOnce()) {
-                Preferences prefs = Preferences.getInstance();
                 color1 = colorSensor.readColor();
 
                 prefs.putInt("color1R", color1[0]);
@@ -194,7 +193,6 @@ public class Input {
                 prefs.putInt("color1B", color1[2]);
             }
             if (Controller.Primary.Button.B.isDownOnce()) {
-                Preferences prefs = Preferences.getInstance();
                 color2 = colorSensor.readColor();
 
                 prefs.putInt("color2R", color2[0]);
@@ -204,16 +202,16 @@ public class Input {
             printCalibration();
         }
 
-        public boolean crossed() {
+        public boolean onLine() {
             for (int i = 0; i < 3; i++)
-                if (!withinError(colorSensor.readColor()[i], color2[i]))
+                if (!withinError(i))
                     return false;
             return true;
         }
 
-        private boolean withinError(int given, int expected) {
-            double difference = Math.abs(given - expected) * error;
-            return (given + difference >= expected && given - difference <= expected);
+        private boolean withinError(int i) {
+            double difference = Math.abs(color1[i] - color2[i]) * error;
+            return (colorSensor.readColor()[i] + difference >= color2[i] && colorSensor.readColor()[i] - difference <= color2[i]);
         }
 
         public void printCalibration() {

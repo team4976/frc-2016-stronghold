@@ -26,11 +26,7 @@ public class Main extends IterativeRobot {
     public void autonomousInit() {
         //autonomousPosition = getAutoPosition();
         autonomousState = 0;
-        Utility.removeDelay("StartAuto");
-        Utility.removeDelay("LineCrossCancel");
-        Utility.removeDelay("DefenseSpeed");
-        Utility.removeDelay("Cock");
-        Utility.removeDelay("Fire");
+        Utility.removeDelay("StartAuto", "LineCrossCancel", "DefenseSpeed", "Cock", "Fire");
     }
 
     public void disabledInit() {
@@ -41,7 +37,7 @@ public class Main extends IterativeRobot {
         Output.Solenoid.CONTROLLER.periodic();
         driveTrain.teleopPeriodic();
         shooter.teleopPeriodic();
-        System.out.println(Input.I2C.LINE.crossed());
+        System.out.println(Input.I2C.LINE.onLine());
     }
 
     public void testPeriodic() {
@@ -80,7 +76,7 @@ public class Main extends IterativeRobot {
             }
 
             // After line is crossed or after 3 seconds
-            if (Input.I2C.LINE.crossed() || Utility.checkDelay("LineCrossCancel")) {
+            if (Input.I2C.LINE.onLine() || Utility.checkDelay("LineCrossCancel")) {
                 // Stop and turn to goal
                 driveTrain.stop();
                 autonomousState = 1;
