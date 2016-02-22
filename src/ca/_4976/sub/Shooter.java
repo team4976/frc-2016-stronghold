@@ -19,13 +19,16 @@ public class Shooter {
         // Intake is lowered
         if (Output.Solenoid.INTAKE.get()) {
             if (Controller.Primary.Button.A.isDownOnce()) {
+                pid.disable();
                 Output.Motor.INTAKE_ROLLERS.set(1.0);
             }
             if (Controller.Primary.Button.B.isDownOnce()) {
+                pid.enable();
                 Output.Motor.SHOOTER.set(1.0);
                 Output.Solenoid.INTAKE.set(false);
             }
             if (Controller.Primary.Button.X.isDownOnce()) {
+                pid.disable();
                 Output.Motor.SHOOTER.set(0);
                 Output.Motor.INTAKE_ROLLERS.set(0);
                 Output.Solenoid.INTAKE.set(false);
@@ -45,12 +48,14 @@ public class Shooter {
                 Utility.startDelay(1000, "ShooterDelay");
             }
             if (Controller.Primary.Button.X.isDownOnce()) {
+                pid.disable();
                 Output.Motor.SHOOTER.set(0);
                 Output.Motor.INTAKE_ROLLERS.set(0);
             }
         }
 
         if (Utility.checkDelay("ShooterDelay")) {
+            pid.disable();
             Output.Motor.INTAKE_ROLLERS.set(0);
             Output.Motor.SHOOTER.set(0);
             Utility.removeDelay("ShooterDelay");
