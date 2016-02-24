@@ -10,9 +10,11 @@ public class Input {
 
     public enum Digital {
 
-        BALL_DETECTED(4, true),
-        IR_L(0, false),
-        IR_R(1, false);
+        //TestBot: 4, 0, 1;
+        //Competiton: 0, 1, 2;
+        BALL_DETECTED(0, true),
+        IR_L(1, false),
+        IR_R(2, false);
 
         DigitalInput input;
         boolean inverted;
@@ -24,6 +26,25 @@ public class Input {
 
         public boolean get() {
             return inverted != input.get();
+        }
+    }
+
+    public enum Analog {
+
+        POSITION_DIAL(0, 1650);
+
+        AnalogInput input;
+        int difference;
+
+        Analog(int pin, int difference) {
+            input = new AnalogInput(pin);
+            this.difference = difference;
+        }
+
+        public int get() {
+            if (difference > 0)
+                return input.getValue() / difference;
+            return input.getValue();
         }
     }
 
@@ -203,6 +224,7 @@ public class Input {
         }
 
         public boolean onLine() {
+            error = prefs.getDouble("error", 0.0);
             for (int i = 0; i < 3; i++)
                 if (!withinError(i))
                     return false;
@@ -219,18 +241,16 @@ public class Input {
             for (int i = 0; i < 3; i++)
                 System.out.print(colorSensor.readColor()[i] + ",");
             System.out.println();
-            System.out.print("Color 2: ");
+            System.out.print("Color 1: ");
             if (color1 != null)
                 for (int i = 0; i < 3; i++)
                     System.out.print(color1[i] + ",");
             System.out.println();
-            System.out.print("Color 1: ");
+            System.out.print("Color 2: ");
             if (color2 != null)
                 for (int i = 0; i < 3; i++)
                     System.out.print(color2[i] + ",");
             System.out.println();
         }
-
     }
-
 }

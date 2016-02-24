@@ -1,5 +1,6 @@
 package ca._4976.io;
 
+import ca._4976.Main;
 import edu.wpi.first.wpilibj.*;
 
 import static edu.wpi.first.wpilibj.DoubleSolenoid.Value.*;
@@ -11,8 +12,8 @@ public class Output {
         DRIVE_LEFT(getDriveLeft(), 1.0),
         DRIVE_RIGHT(getDriveRight(), 1.0),
         SHOOTER(getShooter(), 1.0),
-        INTAKE_WHEELS(getIntakeWheels(), 1.0),
-        INTAKE_ROLLERS(getIntakeRollers(), 1.0);
+        INTAKE_ROLLERS(getIntakeRollers(), 1.0),
+        INTAKE_WHEELS(getIntakeWheels(), 1.0);
 
         Object[] motors;
         double modifier;
@@ -100,31 +101,50 @@ public class Output {
         }
 
         public static Object[] getDriveLeft() {
-            return new Talon[]{new Talon(3)};
+            //Talon[] testBot = new Talon[]{new Talon(3)};
+            CANTalon[] competitionBot = new CANTalon[]{new CANTalon(11), new CANTalon(12)};
+            //if (Main.currentRobot == Main.TEST_BOT)
+            //    return testBot;
+            return competitionBot;
         }
 
         public static Object[] getDriveRight() {
-            return new Talon[]{new Talon(1)};
+            //Talon[] testBot = new Talon[]{new Talon(1)};
+            CANTalon[] competitionBot = new CANTalon[]{new CANTalon(13), new CANTalon(14)};
+            //if (Main.currentRobot == Main.TEST_BOT)
+            //    return testBot;
+            return competitionBot;
         }
 
         public static Object[] getShooter() {
-            return new Object[]{new CANTalon(11), new Talon(2)};
-        }
-
-        public static Object getIntakeWheels() {
-            return new Talon(4);
+            //Object[] testBot = new Object[]{new CANTalon(11), new Talon(2)};
+            Object[] competitionBot = new Object[]{new CANTalon(15), new Talon(0)};
+            // (Main.currentRobot == Main.TEST_BOT)
+            //    return testBot;
+            return competitionBot;
         }
 
         public static Object getIntakeRollers() {
-            return new Talon(5);
+            //Talon[] testBot = new Talon[]{new Talon(5)};
+            Talon[] competitionBot = new Talon[]{new Talon(1)};
+            //if (Main.currentRobot == Main.TEST_BOT)
+            //    return testBot;
+            return competitionBot;
+        }
+
+        public static Object getIntakeWheels() {
+            //Talon[] testBot = new Talon[]{new Talon(4)};
+            Talon[] competitionBot = new Talon[]{new Talon(2)};
+            //if (Main.currentRobot == Main.TEST_BOT)
+            //    return testBot;
+            return competitionBot;
         }
     }
 
     public enum Solenoid {
 
         GEAR(0, 1),
-        INTAKE(3, 2),
-        HOOD(4, 5),
+        INTAKE(4, 5),
         CONTROLLER;
 
         DoubleSolenoid solenoid;
@@ -167,7 +187,6 @@ public class Output {
 
                 Solenoid.GEAR.periodic();
                 Solenoid.INTAKE.periodic();
-                Solenoid.HOOD.periodic();
 
             } else if (solenoid.get() == kOff)
                 onTimerStart = System.currentTimeMillis();

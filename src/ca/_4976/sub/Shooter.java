@@ -8,10 +8,10 @@ import edu.wpi.first.wpilibj.PIDController;
 
 public class Shooter {
 
-    PIDController pid = new PIDController(1.0e-4, 0, 0.001, 0, Input.Encoder.SHOOTER, Output.Motor.SHOOTER);
+    PIDController pid = new PIDController(8.0e-6, 0, 1e-4, 0, Input.Encoder.SHOOTER, Output.Motor.SHOOTER);
 
     public void robotInit() {
-        pid.setSetpoint(6000);
+        pid.setSetpoint(4200);
     }
 
     public void teleopPeriodic() {
@@ -20,6 +20,7 @@ public class Shooter {
         if (Output.Solenoid.INTAKE.get()) {
             if (Controller.Primary.Button.A.isDownOnce()) {
                 pid.disable();
+                pid.reset();
                 Output.Motor.INTAKE_ROLLERS.set(1.0);
             }
             if (Controller.Primary.Button.B.isDownOnce()) {
@@ -29,6 +30,7 @@ public class Shooter {
             }
             if (Controller.Primary.Button.X.isDownOnce()) {
                 pid.disable();
+                pid.reset();
                 Output.Motor.SHOOTER.set(0);
                 Output.Motor.INTAKE_ROLLERS.set(0);
                 Output.Solenoid.INTAKE.set(false);
@@ -40,6 +42,7 @@ public class Shooter {
             if (Controller.Primary.Button.A.isDownOnce()) {
                 Output.Solenoid.INTAKE.set(true);
                 pid.disable();
+                pid.reset();
                 Output.Motor.SHOOTER.set(0.0);
                 Output.Motor.INTAKE_ROLLERS.set(1);
             }
@@ -49,6 +52,7 @@ public class Shooter {
             }
             if (Controller.Primary.Button.X.isDownOnce()) {
                 pid.disable();
+                pid.reset();
                 Output.Motor.SHOOTER.set(0);
                 Output.Motor.INTAKE_ROLLERS.set(0);
             }
@@ -56,6 +60,7 @@ public class Shooter {
 
         if (Utility.checkDelay("ShooterDelay")) {
             pid.disable();
+            pid.reset();
             Output.Motor.INTAKE_ROLLERS.set(0);
             Output.Motor.SHOOTER.set(0);
             Utility.removeDelay("ShooterDelay");
@@ -67,14 +72,18 @@ public class Shooter {
             Output.Solenoid.INTAKE.set(!Output.Solenoid.INTAKE.get());
         if (Math.abs(Controller.Secondary.Stick.LEFT.vertical()) > 0.1)
             Output.Motor.SHOOTER.set(Controller.Secondary.Stick.LEFT.vertical());
-        if (Controller.Secondary.DPad.NORTH.isDownOnce())
-            Output.Solenoid.HOOD.set(true);
-        if (Controller.Secondary.DPad.SOUTH.isDownOnce())
-            Output.Solenoid.HOOD.set(false);
         if (Controller.Secondary.Trigger.LEFT.value() > 0.1)
             Output.Motor.INTAKE_ROLLERS.set(Controller.Secondary.Trigger.LEFT.value());
         if (Controller.Secondary.Trigger.RIGHT.value() > 0.1)
             Output.Motor.INTAKE_ROLLERS.set(Controller.Secondary.Trigger.RIGHT.value());
+    }
+
+    public void disabledInit() {
+        Output.Motor.SHOOTER.set(0.0);
+        Output.Motor.INTAKE_ROLLERS.set(0.0);
+        Output.Motor.INTAKE_WHEELS.set(0.0);
+        pid.disable();
+        pid.reset();
     }
 
 }

@@ -23,7 +23,7 @@ public class DriveTrain {
             } else {
                 if (autoAimState == AUTO_AIM_LEFT)
                     turnLeft(0.2);
-                else if (autoAimState ==  AUTO_AIM_RIGHT)
+                else if (autoAimState == AUTO_AIM_RIGHT)
                     turnRight(0.2);
             }
         } else {
@@ -36,8 +36,8 @@ public class DriveTrain {
 
             double power = rightTrigger - leftTrigger;
 
-            Output.Motor.DRIVE_LEFT.set(-power + steering);
-            Output.Motor.DRIVE_RIGHT.set(power + steering);
+            Output.Motor.DRIVE_LEFT.set(power + steering);
+            Output.Motor.DRIVE_RIGHT.set(-power + steering);
 
             if (Controller.Primary.DPad.SOUTH.isDownOnce())
                 Output.Solenoid.GEAR.set(true);
@@ -46,7 +46,8 @@ public class DriveTrain {
             if (Controller.Primary.Button.LEFT_BUMPER.isDownOnce()) {
                 autoAimState = AUTO_AIM_LEFT;
                 Utility.removeDelay("AutoAimTeleop");
-            } if (Controller.Primary.Button.RIGHT_BUMPER.isDownOnce()) {
+            }
+            if (Controller.Primary.Button.RIGHT_BUMPER.isDownOnce()) {
                 autoAimState = AUTO_AIM_RIGHT;
                 Utility.removeDelay("AutoAimTeleop");
             }
@@ -54,8 +55,8 @@ public class DriveTrain {
     }
 
     public void forward(double power) {
-        Output.Motor.DRIVE_LEFT.set(-power);
-        Output.Motor.DRIVE_RIGHT.set(power);
+        Output.Motor.DRIVE_LEFT.set(power);
+        Output.Motor.DRIVE_RIGHT.set(-power);
     }
 
     public void backward(double power) {
