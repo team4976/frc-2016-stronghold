@@ -1,167 +1,204 @@
 package ca._4976.sub;
 
-
+import ca._4976.io.Controller;
+import ca._4976.io.Input;
+import ca._4976.io.Output;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
+import edu.wpi.first.wpilibj.PIDSource;
+import edu.wpi.first.wpilibj.PIDSourceType;
 
-import static ca._4976.io.Controller.*;
-import static ca._4976.io.Output.*;
-import static ca._4976.io.Input.*;
+import java.util.ArrayList;
 
-public class DriveTrain {
+public class DriveTrain implements PIDOutput, PIDSource {
 
-    int turnCount = 0;
-    int state = 0;
+    public enum TaskType { DRIVE, TURN, AIM}
 
-    PIDController turnPID = new PIDController(0.01, 0, 0, 0,
-            MXP.NAV_X, new MotorPair(Motor.DRIVE_LEFT, Motor.DRIVE_RIGHT, true, true));
+    double error = 1;
+    boolean flip = false;
 
-    PIDController drivePID = new PIDController(0, 0, 0, 0,
-            MXP.NAV_X, new MotorPair(Motor.DRIVE_LEFT, Motor.DRIVE_RIGHT, false, true));
+    Double[][] pidConfiguration = {
+        {0.0, 0.0, 0.0, 0.0},
+        {0.0, 0.0, 0.0, 0.0},
+        {0.3, 0.0, 0.0, 0.0}
+    };
 
-    public void teleopPeriodic() {
+    ArrayList<Object[]> tasks = new ArrayList();
 
-        if (Primary.DPad.EAST.isDownOnce()) turnCount++;
-        else if (Primary.DPad.WEST.isDownOnce()) turnCount--;
+    PIDController pid = new PIDController(0, 0, 0, this, this);
 
-        if (turnCount == 0 && !Primary.Button.LEFT_STICK.isDown()) {
+    int taskState = 0;
 
-            double steering = Primary.Stick.LEFT.horizontal();
+    private void periodic() {
 
-            steering = steering < 0 ? Math.pow(steering, 2) : -Math.pow(steering, 2);
-            steering = Math.abs(steering) > 0.08 ? steering : 0;
+        switch (taskState) {
 
-            double forward = Primary.Trigger.RIGHT.value() - Primary.Trigger.LEFT.value();
+            case 0:
 
-            Motor.DRIVE_LEFT.set(-forward + steering);
-            Motor.DRIVE_RIGHT.set(forward + steering);
+                if (tasks.size() > 0) {
 
-            if (Primary.DPad.NORTH.isDownOnce()) Solenoid.GEAR.set(false);
-            else if (Primary.DPad.SOUTH.isDownOnce()) Solenoid.GEAR.set(true);
+                    switch ((TaskType) tasks.get(0)[0]) {
 
-        } else if (turnCount < 0) if (autoTurnLeft(90)) turnCount++;
+                        case DRIVE:
 
-        else if (turnCount > 0) if (autoTurnRight(90)) turnCount--;
+                            pid = new PIDController(pidConfiguration[0][0], pidConfiguration[0][1],
+                                    pidConfiguration[0][2], this, this);
 
-        else if (turnCount == 0 ) turnPID.disable();
+                            pid.setSetpoint((Double) tasks.get(0)[1]);
 
-        else if (Primary.Button.LEFT_STICK.isDown()) {
+                            break;
+                        case TURN:
 
-            double steering = Primary.Stick.LEFT.horizontal();
-            steering = Math.abs(steering) > 0.08 ? steering : 0;
-            steering *= 4;
+                            pid = new PIDController(pidConfiguration[1][0], pidConfiguration[1][1],
+                                    pidConfiguration[1][2], this, this);
 
-            if (Digital.IR_L.get() && Digital.IR_R.get()) {
+                            Input.MXP.NAV_X.reset();
+                            pid.setSetpoint((Double) tasks.get(0)[1]);
 
-                Motor.DRIVE_LEFT.set(0);
-                Motor.DRIVE_RIGHT.set(0);
+                            break;
+                        case AIM:
 
-            } else {
+                            pid = new PIDController(pidConfiguration[2][0], pidConfiguration[2][1],
+                                    pidConfiguration[2][2], this, this);
 
-                Motor.DRIVE_LEFT.set(steering);
-                Motor.DRIVE_RIGHT.set(steering);
-            }
+                            pid.setSetpoint(0);
+                            pid.setOutputRange(-0.25, 0.25);
+
+                            break;
+                    }
+
+                    pid.enable();
+                    taskState++;
+
+                } break;
+            case 1:
+
+                switch ((TaskType) tasks.get(0)[0]) {
+
+                    case DRIVE:
+
+                        if (pid.getError() < 5 && Input.Encoder.DRIVE_RIGHT.hasStopped()) {
+
+                            tasks.remove(0);
+                            pid.disable();
+                            taskState = 0;
+
+                        } break;
+
+                    case TURN:
+
+                        if (pid.getError() < 5 && Input.Encoder.DRIVE_RIGHT.hasStopped()) {
+
+                            tasks.remove(0);
+                            pid.disable();
+                            taskState = 0;
+
+                        } break;
+                    case AIM:
+
+                        if (Math.abs(pid.getError()) < 1) {
+
+                            tasks.remove(0);
+                            pid.disable();
+                            taskState = 0;
+
+                        } break;
+                }
         }
     }
 
     public void disabledInit() {
 
-        turnPID.disable();
-        drivePID.disable();
-        turnCount = 0;
-        state = 0;
+        taskState = 0;
+        pid.disable();
+        tasks.clear();
     }
 
-    public boolean autoTurnLeft(int degree) {
+    public void teleopPeriodic() {
 
-        switch (state) {
+        periodic();
 
-            case 0:
-                MXP.NAV_X.reset();
-                turnPID.setSetpoint(-degree);
-                turnPID.enable();
-                state++;
-                return false;
-            case 1:
-                if (Encoder.DRIVE_RIGHT.hasStopped() && Math.abs(turnPID.getError()) < 10) {
 
-                    turnPID.disable();
-                    state = 0;
-                    return true;
+        if (tasks.size() == 0) {
 
-                }
+            double steering = Controller.Primary.Stick.LEFT.horizontal();
+            steering = steering < 0 ? -steering * steering : steering * steering;
+            steering = Math.abs(steering) > 0.08 ? steering : 0;
+
+            double power = Controller.Primary.Trigger.RIGHT.value() - Controller.Primary.Trigger.LEFT.value();
+
+            Output.Motor.DRIVE_LEFT.set(power - steering);
+            Output.Motor.DRIVE_RIGHT.set(-power - steering);
+
+            if (Controller.Primary.Button.LEFT_BUMPER.isDownOnce()) tasks.add(new Object[] {TaskType.AIM, 1d});
+            if (Controller.Primary.Button.RIGHT_BUMPER.isDownOnce()) tasks.add(new Object[] {TaskType.AIM, -1d});
+            if (Controller.Primary.DPad.EAST.isDownOnce()) tasks.add(new Object[] {TaskType.TURN, 90});
+            if (Controller.Primary.DPad.WEST.isDownOnce()) tasks.add(new Object[] {TaskType.TURN, -90});
+            if (Controller.Primary.Button.BACK.isDown()) {
+
+                taskState = 0;
+                pid.disable();
+                tasks.clear();
+            }
+
+            if (Controller.Primary.DPad.NORTH.isDownOnce()) Output.Solenoid.GEAR.set(true);
+            if (Controller.Primary.DPad.SOUTH.isDownOnce()) Output.Solenoid.GEAR.set(false);
         }
-
-        return false;
     }
 
-    public boolean autoTurnRight(int degree) {
+    public void autonomousPeriodic() { periodic(); }
 
-        switch (state) {
+    public void ScheduleTask(TaskType taskType, Double taskValue) { tasks.add(new Object[] {taskType, taskValue}); }
 
-            case 0:
-                MXP.NAV_X.reset();
-                turnPID.setSetpoint(degree);
-                turnPID.enable();
-                state++;
-                return false;
-            case 1:
-                if (Encoder.DRIVE_RIGHT.hasStopped() && turnPID.getError() < 2) {
+    public boolean hasTasks() { return tasks.size() > 0; }
 
-                    turnPID.disable();
-                    state = 0;
-                    return true;
+    @Override public void pidWrite(double output) {
 
-                } else return false;
-        }
+        if (tasks.size() > 0)
 
-        return false;
+            switch ((TaskType) tasks.get(0)[0])  {
+
+                case DRIVE:
+
+                    Output.Motor.DRIVE_LEFT.set(output);
+                    Output.Motor.DRIVE_RIGHT.set(-output);
+
+                    break;
+
+                case TURN:
+
+                    Output.Motor.DRIVE_LEFT.set(-output);
+                    Output.Motor.DRIVE_RIGHT.set(-output);
+
+                case AIM:
+
+                    Output.Motor.DRIVE_LEFT.set(-output);
+                    Output.Motor.DRIVE_RIGHT.set(-output);
+
+                    break;
+            }
     }
 
-    public boolean forward(double meters) {
+    @Override public void setPIDSourceType(PIDSourceType pidSource) { }
 
-        switch (state) {
+    @Override public PIDSourceType getPIDSourceType() { return PIDSourceType.kDisplacement; }
 
-            case 0:
-                MXP.NAV_X.reset();
-                drivePID.setSetpoint(meters);
-                drivePID.enable();
-                state++;
-                return false;
-            case 1:
-                if (Encoder.DRIVE_RIGHT.hasStopped() && turnPID.getError() < 2) {
+    @Override public double pidGet() {
 
-                    drivePID.disable();
-                    state = 0;
-                    return true;
+        switch ((TaskType) tasks.get(0)[0])  {
 
-                } else return false;
-        }
+            default: return 0;
 
-        return false;
-    }
+            case DRIVE: return Input.Encoder.DRIVE_RIGHT.pidGet();
 
-    public class MotorPair implements PIDOutput {
 
-        Motor motor1;
-        Motor motor2;
+            case TURN: return Input.MXP.NAV_X.pidGet();
 
-        boolean isMotor1Revered = false;
-        boolean isMotor2Revered = false;
+            case AIM:
 
-        public MotorPair(Motor motor1, Motor motor2, boolean isMotor1Revered, boolean isMotor2Revered) {
 
-            this.motor1 = motor1;
-            this.motor2 = motor2;
-            this.isMotor1Revered = isMotor1Revered;
-            this.isMotor2Revered = isMotor2Revered;
-        }
-
-        @Override
-        public void pidWrite(double output) {
-
-            motor1.set(isMotor1Revered ? -output : output);
-            motor2.set(isMotor2Revered ? -output : output);
+                return Input.Digital.IR_R.get() && Input.Digital.IR_L.get() ?
+                        (Double) tasks.get(0)[1] * 0.0000 : (Double) tasks.get(0)[1] * error;
         }
     }
 }

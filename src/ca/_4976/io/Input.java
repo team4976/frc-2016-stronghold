@@ -10,28 +10,37 @@ public class Input {
 
     public enum Digital {
 
-        BALL_DETECTED(4, true),
-        IR_L(5, true),
-        IR_R(6, true);
+        BALL_DETECTED(0, true, false),
+        IR_L(1, false, true),
+        IR_R(2, false, true);
 
         DigitalInput input;
         boolean inverted;
+        boolean debounce;
+        long flag = System.currentTimeMillis();
 
-        Digital(int pin, boolean inverted) {
+        Digital(int pin, boolean inverted ,boolean debounce) {
             input = new DigitalInput(pin);
             this.inverted = inverted;
+            this.debounce = debounce;
         }
 
         public boolean get() {
-            return inverted != input.get();
+
+            if (debounce) {
+
+                if (inverted != input.get()) flag = System.currentTimeMillis();
+
+                return  System.currentTimeMillis() - flag < 100;
+
+            } else return inverted != input.get();
         }
     }
 
     public enum Encoder implements PIDSource {
 
-        DRIVE_RIGHT(0, 1, 0.00065, kDisplacement),
-        SCALER(2, 3, 0.1, kDisplacement),
-        SHOOTER(Output.Motor.SHOOTER, 6.82 * 2, kRate);
+        DRIVE_RIGHT(3, 4, 1, kDisplacement),
+        SHOOTER(Output.Motor.SHOOTER, CANTalon.FeedbackDevice.CtreMagEncoder_Relative, 6.82 * 2, kRate);
 
         Object encoder = false;
         boolean isReversed;
@@ -39,9 +48,10 @@ public class Input {
         int hasNotMovedCounter = 0;
         double scale;
 
-        Encoder(Output.Motor motor, double scaler, PIDSourceType pidSourceType) {
+        Encoder(Output.Motor motor, CANTalon.FeedbackDevice feedbackDevice, double scaler, PIDSourceType pidSourceType) {
 
             motor.setPIDSourceType(pidSourceType);
+            motor.setFeedbackDevice(feedbackDevice);
 
             this.encoder = motor;
             this.scale = scaler;

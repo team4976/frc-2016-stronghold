@@ -8,11 +8,11 @@ public class Output {
 
     public enum Motor implements PIDOutput {
 
-        DRIVE_LEFT(new CANTalon[]{new CANTalon(11), new CANTalon(12)}, 1.0),
-        DRIVE_RIGHT(new CANTalon[]{new CANTalon(13), new CANTalon(14)}, 1.0),
-        SHOOTER(new Object[]{new CANTalon(15), new Talon(0)}, 1.0),
-        INTAKE_WHEELS(new Talon(2), 1.0),
-        INTAKE_ROLLERS(new Talon(3), -1.0);
+        DRIVE_LEFT(new Talon(1), 1.0),
+        DRIVE_RIGHT(new Talon(3), 1.0),
+        SHOOTER(new Object[]{new CANTalon(11), new Talon(2)}, -1.0),
+        INTAKE_WHEELS(new Talon(5), 1.0),
+        INTAKE_ROLLERS(new Talon(4), -1.0);
 
         Object[] motors;
         double modifier;
@@ -34,6 +34,14 @@ public class Output {
             for (Object i : motors) {
 
                 if (i instanceof CANTalon) ((CANTalon) i).setPIDSourceType(pidSourceType);
+            }
+        }
+
+        public void setFeedbackDevice(CANTalon.FeedbackDevice feedbackDevice) {
+
+            for (Object i : motors) {
+
+                if (i instanceof CANTalon) ((CANTalon) i).setFeedbackDevice(feedbackDevice);
             }
         }
 
@@ -117,7 +125,6 @@ public class Output {
 
         GEAR(0, 1),
         INTAKE(2, 3),
-        HOOD(4, 5),
         CONTROLLER;
 
         DoubleSolenoid solenoid;
@@ -159,11 +166,10 @@ public class Output {
 
                 Solenoid.GEAR.periodic();
                 Solenoid.INTAKE.periodic();
-                Solenoid.HOOD.periodic();
 
             } else if (solenoid.get() == kOff) onTimerStart = System.currentTimeMillis();
 
-            else if (System.currentTimeMillis() - onTimerStart > 60) solenoid.set(kOff);
+            else if (System.currentTimeMillis() - onTimerStart > 500) solenoid.set(kOff);
         }
     }
 }
