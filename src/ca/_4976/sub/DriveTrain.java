@@ -118,7 +118,6 @@ public class DriveTrain implements PIDOutput, PIDSource {
 
         periodic();
 
-
         if (tasks.size() == 0) {
 
             double steering = Controller.Primary.Stick.LEFT.horizontal();
@@ -134,15 +133,16 @@ public class DriveTrain implements PIDOutput, PIDSource {
             if (Controller.Primary.Button.RIGHT_BUMPER.isDownOnce()) tasks.add(new Object[] {TaskType.AIM, -1d});
             if (Controller.Primary.DPad.EAST.isDownOnce()) tasks.add(new Object[] {TaskType.TURN, 90});
             if (Controller.Primary.DPad.WEST.isDownOnce()) tasks.add(new Object[] {TaskType.TURN, -90});
-            if (Controller.Primary.Button.BACK.isDown()) {
-
-                taskState = 0;
-                pid.disable();
-                tasks.clear();
-            }
 
             if (Controller.Primary.DPad.NORTH.isDownOnce()) Output.Solenoid.GEAR.set(true);
             if (Controller.Primary.DPad.SOUTH.isDownOnce()) Output.Solenoid.GEAR.set(false);
+        }
+
+        if (Controller.Primary.Button.BACK.isDownOnce()) {
+
+            taskState = 0;
+            pid.disable();
+            tasks.clear();
         }
     }
 
