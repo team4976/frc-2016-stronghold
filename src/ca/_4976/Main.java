@@ -104,14 +104,13 @@ public class Main extends IterativeRobot {
 
                                 } break;
                             case 3:
-                                if (true) { //TODO add Midura's Sensor
 
-                                    Output.Motor.DRIVE_LEFT.set(0);
-                                    Output.Motor.DRIVE_RIGHT.set(0);
-                                    state = AutoTypes.SHOOT;
-                                    subState = 0;
+                                Output.Motor.DRIVE_LEFT.set(0);
+                                Output.Motor.DRIVE_RIGHT.set(0);
+                                state = AutoTypes.SHOOT;
+                                subState = 0;
 
-                                } break;
+                                break;
                         } break;
 
                     case PORTCULLIS:
@@ -165,12 +164,9 @@ public class Main extends IterativeRobot {
                                     Output.Motor.DRIVE_RIGHT.set(0);
                                     subState = 0;
                                     state = AutoTypes.SHOOT;
-                                }
 
-                                break;
-
+                                } break;
                         } break;
-
                 } break;
 
             case SHOOT:
@@ -195,7 +191,8 @@ public class Main extends IterativeRobot {
                         if (shooter.shoot()) subState++;
 
                         break;
-                }
+
+                } break;
         }
     }
 }
