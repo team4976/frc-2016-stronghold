@@ -1,8 +1,10 @@
 <div align="center">
 
-![Stronhold](http://www.firstinspires.org/sites/default/files/uploads/resource_library/frc/first-stronghold.jpg)
-# __4976 Temp Software__
+<img src ="http://www.firstinspires.org/sites/default/files/uploads/resource_library/frc/first-stronghold.jpg" />
+
+<h1>4976 Temp Software</h1>
 </div>
+
 
 ### __Description__
 
