@@ -1,38 +1,32 @@
-<div align="center"><h1>RecycleRush STEMly Competition</h1></div>
-![FRC Image](http://team4619.com/wp-content/uploads/2015/06/936381_orig.png)
-<h3>Steps for Integration:<h3>
-===
-***
-<h4>Requirements:</h4>
-(see FRC requirements for version details)
-* Eclipse
-* Windows Mac or Linux
-* Intellij Idea
-* Git SCM
+<div align="center">
+![Stronhold](http://www.firstinspires.org/sites/default/files/uploads/resource_library/frc/first-stronghold.jpg)<h1>**4976 Competition Software**</h1>
+</div>
 
-Setup
+<h3>**Description**</h3>
 
-1.  If you haven't created a project in eclipse for FRC development follow the instructions posted at https://wpilib.screenstepslive.com/s/4485/m/13809
-2. Launch Intellij Idea
-3. If Already in a project File --> new --> Project from Version Control --> Github, otherwise just click  Project from Version Control --> Github
-4. Use you Github login. Don't have one? go to https://github.com/ and create and account
-5. The Following should look as follows before clicking clone
+---
+Our software is aimed to provide an intuitive set of controls for our drivers. We have accomplished this by making most of the systems on our robot semi-automated. Providing the driver with simplistic controls such as "aim", "shoot", and "pick up ball". these function control all of the pneumatics and motors are handled in software to allow the driver to think about driving, not how long he needs to spin the intake.
 
- Git Repository URL: https://github.com/frc4976/RecycleRush-MAIN.git<br>
- Parent Directory: //the default is will work fine<br>
- Directory Name: RecycleRush-MAIN
-6. Click clone
-7. If prompted to open in new window or this window click select this window
-8. Double Click RecycleRush-MAIN
-9. Right click src then Mark Directory As --> Sources Root
-10. Right click src then Add as Ant Build File
-11. Navigate to File --> Project Structure / Modules / Dependencies
-12. Click the + then JARs or directories...
-13. Navigate to your wpilib library files it should look something like this assuming you on
+<h3>**Installation**</h3>
 
- Windows: C:\Users\\(your username)\wpilib\java\current\lib - Windows <br>
- Linux: /home/(your username)/wpilib/java/current/lib - linux <br>
- Mac: ? Possibly similar to linux
-14. After selecting the directory click OK
+---
+Intellij IDEA being our preferred development environment here are a few simple steps to get you started programming for FIRST Robotics Competitions. It's recommended that you read through once first so you don't miss anything.
 
-Now your ready to develop to your hearts content remember to commit regularly.
+
+<div>
+1. If you haven't already follow the wpilib documentation to install your development tools. which can be found [here.](https://wpilib.screenstepslive.com/s/4485/m/13503/l/145002-installing-eclipse-c-java) 
+2. then make sure you've download and installed intell Intellij IDEA Community from [here.](https://www.jetbrains.com/idea/specials/idea/idea.html?&gclid=Cj0KEQiA3t-2BRCKivi-suDY24gBEiQAX1wiXDi97R7ffOx9aprOyzlWizkZfSgI7PYjaRnOnGAp6TsaAlXF8P8HAQ&gclsrc=aw.ds&dclid=CIuyoL_9pcsCFcRxAQodelYP2g#chooseYourEdition)
+3. clone the project to your preferred directory  step for using git can be found [here.](https://help.github.com/)
+<div align="center">![Clone](http://i.imgur.com/xQGX696.png)<div>
+
+4. Start Intellij IDEA and Import a project. 
+![Start](http://i.imgur.com/HrW6SXQ.png)
+5. Navigate to you preferred directory and select the project folder.
+![navigate](http://i.imgur.com/mMIJ98E.png)
+6. Click next a few times the default settings will work fine. Feel free to mess around and make it feel a little more personal.
+7. Next we are going to setup the project for development first we need to tell intellij what to build right click on the build.xml file and mark it as ant build file.
+![ant build](https://i.imgur.com/wf4IvIv.png)
+8. Now we need to tell IDEA where all of our libraries are this can be done by pressing (ctrl + alt + shift + s) then navigating to modules -> dependencies. ![dependencies](https://i.imgur.com/r4C4VVB.png)
+9. Clicking the small plus sign beside the word scope (as shown above) allows us to add external libraries to the build path. We will navigate to C:\Users\"your username"\wpilib\java\current\ and select the following and click ok.
+![dependancies 2](https://i.imgur.com/2njGJAh.png) 
+10. Now you'll just have to click apply and ok and your ready to develop.
