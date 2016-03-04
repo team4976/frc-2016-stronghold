@@ -39,7 +39,7 @@ Intellij IDEA being our preferred development environment here are a few simple 
 6. Click next a few times the default settings will work fine. Feel free to mess around and make it feel a little more personal.
 
 7. Next we are going to setup the project for development first we need to tell intellij what to build right click on the build.xml file and mark it as ant build file.
-![ant build](https://i.imgur.com/wf4IvIv.png)
+![ant build](http://i.imgur.com/Tiu0Jfa.png)
 
 8. Now we need to tell IDEA where all of our libraries are this can be done by pressing (ctrl + alt + shift + s) then navigating to modules -> dependencies. 
 ![dependencies](https://i.imgur.com/r4C4VVB.png)
