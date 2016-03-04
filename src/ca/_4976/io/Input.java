@@ -172,15 +172,75 @@ public class Input {
         LINE;
 
         ISL29125 colorSensor;
+        int[] color1, color2;
+
+        double error;
+        Preferences prefs = Preferences.getInstance();
 
         I2C() {
             colorSensor = new ISL29125(edu.wpi.first.wpilibj.I2C.Port.kOnboard);
+
+            // Load color1 calibration
+            color1 = new int[3];
+            color1[0] = prefs.getInt("color1R", 0);
+            color1[1] = prefs.getInt("color1G", 0);
+            color1[2] = prefs.getInt("color1B", 0);
+
+            // Load color2 calibration
+            color2 = new int[3];
+            color2[0] = prefs.getInt("color2R", 0);
+            color2[1] = prefs.getInt("color2G", 0);
+            color2[2] = prefs.getInt("color2B", 0);
+
+            error = prefs.getDouble("error", 0.0);
+            colorSensor.init();
         }
 
         public void callibrate() {
+            if (Controller.Primary.Button.A.isDownOnce()) {
+                color1 = colorSensor.readColor();
 
+                prefs.putInt("color1R", color1[0]);
+                prefs.putInt("color1G", color1[1]);
+                prefs.putInt("color1B", color1[2]);
+            }
+            if (Controller.Primary.Button.B.isDownOnce()) {
+                color2 = colorSensor.readColor();
+
+                prefs.putInt("color2R", color2[0]);
+                prefs.putInt("color2G", color2[1]);
+                prefs.putInt("color2B", color2[2]);
+            }
+            printCalibration();
         }
 
-    }
+        public boolean onLine() {
+            error = prefs.getDouble("error", 0.0);
+            for (int i = 0; i < 3; i++)
+                if (!withinError(i))
+                    return false;
+            return true;
+        }
 
+        private boolean withinError(int i) {
+            double difference = Math.abs(color1[i] - color2[i]) * error;
+            return (colorSensor.readColor()[i] + difference >= color2[i] && colorSensor.readColor()[i] - difference <= color2[i]);
+        }
+        public void printCalibration() {
+            System.out.print("Color Sensor: ");
+            for (int i = 0; i < 3; i++)
+                System.out.print(colorSensor.readColor()[i] + ",");
+            System.out.println();
+            System.out.print("Color 1: ");
+            if (color1 != null)
+                for (int i = 0; i < 3; i++)
+                    System.out.print(color1[i] + ",");
+            System.out.println();
+            System.out.print("Color 2: ");
+            if (color2 != null)
+                for (int i = 0; i < 3; i++)
+                    System.out.print(color2[i] + ",");
+            System.out.println();
+        }
+    }
 }
