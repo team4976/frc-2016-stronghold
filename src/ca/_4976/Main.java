@@ -2,7 +2,6 @@ package ca._4976;
 
 import ca._4976.io.Input;
 import ca._4976.io.Output;
-import ca._4976.io.Variables;
 import ca._4976.sub.*;
 import edu.wpi.first.wpilibj.IterativeRobot;
 
@@ -25,7 +24,6 @@ public class Main extends IterativeRobot {
 
     @Override public void robotInit() {
 
-        Variables.robotInit();
         Input.Encoder.SHOOTER.setReversed(false);
     }
 
