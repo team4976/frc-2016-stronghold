@@ -54,12 +54,25 @@ public class Intake {
             state = -1;
             Motor.INTAKE_ROLLERS.set(Secondary.Trigger.RIGHT.value() - Secondary.Trigger.LEFT.value());
 
-        } else if (Math.abs(Secondary.Stick.RIGHT.vertical()) > 0.1) {
+        } if (state == -1) {
+
+            state = 0;
+            Motor.SHOOTER.set(0);
+        }
+
+        if (Math.abs(Secondary.Stick.RIGHT.vertical()) > 0.1) {
 
             state = -1;
             Motor.INTAKE_WHEELS.set(Secondary.Stick.RIGHT.vertical());
 
         } else if (state == -1) {
+
+            Motor.INTAKE_WHEELS.set(0);
+        }
+
+        if (Math.abs(Secondary.Trigger.LEFT.value() - Secondary.Trigger.RIGHT.value()) < 0.1
+                && Math.abs(Secondary.Stick.RIGHT.vertical()) > 0.1
+                && state == -1) {
 
             state = 0;
             Motor.INTAKE_WHEELS.set(0);

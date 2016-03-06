@@ -16,11 +16,12 @@ public class DriveTrain implements PIDOutput, PIDSource {
 
     double error = 1;
     boolean flip = false;
+    long timeFlag = System.currentTimeMillis();
 
     Double[][] pidConfiguration = {
         {0.0, 0.0, 0.0, 0.0},
         {0.0, 0.0, 0.0, 0.0},
-        {0.3, 0.0, 0.0, 0.0}
+        {1.0, 0.0, 0.0, 0.0}
     };
 
     ArrayList<Object[]> tasks = new ArrayList();
@@ -62,7 +63,8 @@ public class DriveTrain implements PIDOutput, PIDSource {
                                     pidConfiguration[2][2], this, this);
 
                             pid.setSetpoint(0);
-                            pid.setOutputRange(-0.25, 0.25);
+                            timeFlag = System.currentTimeMillis();
+                            pid.setOutputRange(-0.4, 0.4);
 
                             break;
                     }
@@ -96,7 +98,9 @@ public class DriveTrain implements PIDOutput, PIDSource {
                         } break;
                     case AIM:
 
-                        if (Math.abs(pid.getError()) < 1) {
+                        System.out.println(pid.getError());
+
+                        if (Input.Digital.IR_R.get() & Input.Digital.IR_L.get() & pid.getError() == 0) {
 
                             tasks.remove(0);
                             pid.disable();
@@ -134,8 +138,8 @@ public class DriveTrain implements PIDOutput, PIDSource {
             if (Controller.Primary.DPad.EAST.isDownOnce()) tasks.add(new Object[] {TaskType.TURN, 90});
             if (Controller.Primary.DPad.WEST.isDownOnce()) tasks.add(new Object[] {TaskType.TURN, -90});
 
-            if (Controller.Primary.DPad.NORTH.isDownOnce()) Output.Solenoid.GEAR.set(true);
-            if (Controller.Primary.DPad.SOUTH.isDownOnce()) Output.Solenoid.GEAR.set(false);
+            if (Controller.Primary.Button.LEFT_STICK.isDown()) Output.Solenoid.GEAR.set(true);
+            else Output.Solenoid.GEAR.set(false);
         }
 
         if (Controller.Primary.Button.BACK.isDownOnce()) {
@@ -197,7 +201,7 @@ public class DriveTrain implements PIDOutput, PIDSource {
             case AIM:
 
 
-                return Input.Digital.IR_R.get() && Input.Digital.IR_L.get() ?
+                return Input.Digital.IR_R.get() && Input.Digital.IR_L.get() && System.currentTimeMillis() - timeFlag > 80 ?
                         (Double) tasks.get(0)[1] * 0.0000 : (Double) tasks.get(0)[1] * error;
         }
     }
