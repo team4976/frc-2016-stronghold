@@ -30,6 +30,8 @@ public class Main extends IterativeRobot {
     @Override public void robotInit() {
 
         Input.Encoder.SHOOTER.setReversed(false);
+        table.putNumber("AutoState", 0);
+        table.putNumber("DefenceType", 0);
     }
 
     @Override public void disabledInit() {
@@ -51,8 +53,10 @@ public class Main extends IterativeRobot {
         if (Controller.Primary.Button.RIGHT_STICK.isDown())
             targeting.aim();
 
+        else drive.teleopPeriodic();
+
         Output.Solenoid.CONTROLLER.periodic();
-        drive.teleopPeriodic();
+
         intake.teleopPeriodic();
         shooter.teleopPeriodic();
 
@@ -71,7 +75,7 @@ public class Main extends IterativeRobot {
             case 1: state = AutoTypes.SHOOT; break;
         }
 
-        switch ((int) table.getNumber("DefencdType", 0)) {
+        switch ((int) table.getNumber("DefenceType", 0)) {
 
             case 0: defenceType = DefenceTypes.LOWBAR; break;
 
@@ -158,7 +162,7 @@ public class Main extends IterativeRobot {
 
                             case 2:
 
-                                if (System.currentTimeMillis() - autoTimeFlag > 3200) { //3800
+                                if (System.currentTimeMillis() - autoTimeFlag > 3800) { //38003ws3
 
                                     Output.Motor.INTAKE_WHEELS.set(0);
                                     Output.Motor.DRIVE_LEFT.set(0);

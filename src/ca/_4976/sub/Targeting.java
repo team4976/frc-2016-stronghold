@@ -28,11 +28,11 @@ public class Targeting {
         if (goalI >= 0) {
             double edge = centerX[goalI] + (width[goalI] / 2);
             if (edge < 160 - ERROR) {
-                Output.Motor.DRIVE_LEFT.set(-0.4);
-                Output.Motor.DRIVE_RIGHT.set(-0.4);
-            } else if (edge > 160 + ERROR) {
                 Output.Motor.DRIVE_LEFT.set(0.4);
                 Output.Motor.DRIVE_RIGHT.set(0.4);
+            } else if (edge > 160 + ERROR) {
+                Output.Motor.DRIVE_LEFT.set(-0.4);
+                Output.Motor.DRIVE_RIGHT.set(-0.4);
             }
         }
     }

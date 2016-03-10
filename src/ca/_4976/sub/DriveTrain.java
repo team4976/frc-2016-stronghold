@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.PIDSource;
 import edu.wpi.first.wpilibj.PIDSourceType;
+import edu.wpi.first.wpilibj.networktables.NetworkTable;
 
 import java.util.ArrayList;
 
@@ -27,6 +28,8 @@ public class DriveTrain implements PIDOutput, PIDSource {
     ArrayList<Object[]> tasks = new ArrayList();
 
     PIDController pid = new PIDController(0, 0, 0, this, this);
+
+    NetworkTable cameraProcess = NetworkTable.getTable("GRUB");
 
     int taskState = 0;
 
@@ -133,13 +136,13 @@ public class DriveTrain implements PIDOutput, PIDSource {
             Output.Motor.DRIVE_LEFT.set(power - steering);
             Output.Motor.DRIVE_RIGHT.set(-power - steering);
 
-            if (Controller.Primary.Button.LEFT_BUMPER.isDownOnce()) tasks.add(new Object[] {TaskType.AIM, 1d});
-            if (Controller.Primary.Button.RIGHT_BUMPER.isDownOnce()) tasks.add(new Object[] {TaskType.AIM, -1d});
+            if (Controller.Primary.Button.LEFT_BUMPER.isDownOnce()) tasks.add(new Object[] {TaskType.AIM, 0});
+            if (Controller.Primary.Button.RIGHT_BUMPER.isDownOnce()) tasks.add(new Object[] {TaskType.AIM, 0});
             if (Controller.Primary.DPad.EAST.isDownOnce()) tasks.add(new Object[] {TaskType.TURN, 90});
             if (Controller.Primary.DPad.WEST.isDownOnce()) tasks.add(new Object[] {TaskType.TURN, -90});
 
-            if (Controller.Primary.Button.LEFT_STICK.isDown()) Output.Solenoid.GEAR.set(true);
-            else Output.Solenoid.GEAR.set(false);
+            if (Controller.Primary.Button.Y.isDown()) Output.Solenoid.GEAR.set(true);
+            else if (Output.Solenoid.GEAR.get()) Output.Solenoid.GEAR.set(false);
         }
 
         if (Controller.Primary.Button.BACK.isDownOnce()) {
@@ -200,9 +203,7 @@ public class DriveTrain implements PIDOutput, PIDSource {
 
             case AIM:
 
-
-                return Input.Digital.IR_R.get() && Input.Digital.IR_L.get() && System.currentTimeMillis() - timeFlag > 80 ?
-                        (Double) tasks.get(0)[1] * 0.0000 : (Double) tasks.get(0)[1] * error;
+                return cameraProcess.getNumber("TBD", 0);
         }
     }
 }

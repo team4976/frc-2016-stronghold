@@ -8,11 +8,11 @@ public class Output {
 
     public enum Motor implements PIDOutput {
 
-        DRIVE_LEFT(new Talon(1), 1.0),
-        DRIVE_RIGHT(new Talon(3), 1.0),
-        SHOOTER(new Object[]{new CANTalon(11), new Talon(2)}, -1.0),
-        INTAKE_WHEELS(new Talon(5), 1.0),
-        INTAKE_ROLLERS(new Talon(4), -1.0);
+        DRIVE_LEFT(new Object[] {new CANTalon(11), new CANTalon(12)}, 1.0),
+        DRIVE_RIGHT(new Object[] {new CANTalon(13), new CANTalon(14)}, 1.0),
+        SHOOTER(new Object[]{new CANTalon(15), new Talon(0)}, -1.0),
+        INTAKE_WHEELS(new Talon(2), 1.0),
+        INTAKE_ROLLERS(new Talon(1), 1.0);
 
         Object[] motors;
         double modifier;
@@ -124,7 +124,7 @@ public class Output {
     public enum Solenoid {
 
         GEAR(0, 1),
-        INTAKE(2, 3),
+        INTAKE(5, 4),
         CONTROLLER;
 
         DoubleSolenoid solenoid;
