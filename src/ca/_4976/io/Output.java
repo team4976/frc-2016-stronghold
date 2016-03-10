@@ -11,7 +11,7 @@ public class Output {
         DRIVE_LEFT(new Object[] {new CANTalon(11), new CANTalon(12)}, 1.0),
         DRIVE_RIGHT(new Object[] {new CANTalon(13), new CANTalon(14)}, 1.0),
         SHOOTER(new Object[]{new CANTalon(15), new Talon(0)}, -1.0),
-        INTAKE_WHEELS(new Talon(2), 1.0),
+        INTAKE_WHEELS(new Talon(2), -1.0),
         INTAKE_ROLLERS(new Talon(1), 1.0);
 
         Object[] motors;

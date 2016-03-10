@@ -249,7 +249,7 @@ public class Main extends IterativeRobot {
 
             case SHOOT:
 
-                switch (subState) {
+                /*switch (subState) {
 
                     case 0:
 
@@ -275,7 +275,7 @@ public class Main extends IterativeRobot {
 
                         break;
 
-                } break;
+                }*/ break;
         }
     }
 
