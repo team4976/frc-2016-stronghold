@@ -1,5 +1,6 @@
 package ca._4976;
 
+import ca._4976.io.Controller;
 import ca._4976.io.Input;
 import ca._4976.io.Output;
 import ca._4976.sub.*;
@@ -24,6 +25,7 @@ public class Main extends IterativeRobot {
     DriveTrain drive = new DriveTrain();
     Intake intake = new Intake();
     Shooter shooter = new Shooter();
+    Targeting targeting = new Targeting();
 
     @Override public void robotInit() {
 
@@ -45,6 +47,9 @@ public class Main extends IterativeRobot {
     }
 
     @Override public void teleopPeriodic() {
+
+        if (Controller.Primary.Button.RIGHT_STICK.isDown())
+            targeting.aim();
 
         Output.Solenoid.CONTROLLER.periodic();
         drive.teleopPeriodic();
@@ -269,4 +274,5 @@ public class Main extends IterativeRobot {
                 } break;
         }
     }
+
 }
