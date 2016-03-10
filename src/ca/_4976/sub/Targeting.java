@@ -16,7 +16,7 @@ public class Targeting {
         Double[] width = contours.getNumberArray("width", new Double[]{0.0});
         Double[] area = contours.getNumberArray("area", new Double[]{0.0});
 
-        double largestArea = 0.5;
+        double largestArea = 149;
         int goalI = -1;
 
         for (int i = 0; i < area.length; i++)
