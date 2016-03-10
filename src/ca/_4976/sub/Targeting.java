@@ -10,7 +10,7 @@ public class Targeting {
 
     public ITable contours = NetworkTable.getTable("GRIP").getSubTable("GoalContours");
 
-    public void aim() {
+    public boolean aim() {
 
         Double[] centerX = contours.getNumberArray("centerX", new Double[]{0.0});
         Double[] width = contours.getNumberArray("width", new Double[]{0.0});
@@ -27,14 +27,20 @@ public class Targeting {
 
         if (goalI >= 0) {
             double edge = centerX[goalI] + (width[goalI] / 2);
-            if (edge < 160 - ERROR) {
-                Output.Motor.DRIVE_LEFT.set(0.4);
-                Output.Motor.DRIVE_RIGHT.set(0.4);
-            } else if (edge > 160 + ERROR) {
-                Output.Motor.DRIVE_LEFT.set(-0.4);
-                Output.Motor.DRIVE_RIGHT.set(-0.4);
+            if (!(edge >= 160 - ERROR && edge <= 160 + ERROR)) {
+                if (edge < 160 - ERROR) {
+                    Output.Motor.DRIVE_LEFT.set(0.4);
+                    Output.Motor.DRIVE_RIGHT.set(0.4);
+                } else if (edge > 160 + ERROR) {
+                    Output.Motor.DRIVE_LEFT.set(-0.4);
+                    Output.Motor.DRIVE_RIGHT.set(-0.4);
+                }
+            } else {
+                return true;
             }
         }
+
+        return false;
     }
 
 }
