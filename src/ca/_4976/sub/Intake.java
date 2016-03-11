@@ -1,5 +1,7 @@
 package ca._4976.sub;
 
+import ca._4976.io.Output;
+
 import static ca._4976.io.Output.*;
 import static ca._4976.io.Input.*;
 import static ca._4976.io.Controller.*;
@@ -71,5 +73,7 @@ public class Intake {
             Motor.INTAKE_WHEELS.set(0);
             Motor.INTAKE_ROLLERS.set(0);
         }
+
+        if (Secondary.Button.A.isDownOnce()) Solenoid.INTAKE.set(!Solenoid.INTAKE.get());
     }
 }
