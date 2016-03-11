@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.networktables.NetworkTable;
 public class Main extends IterativeRobot {
 
     public enum  AutoTypes { BREACH, SHOOT }
-    public enum DefenceTypes { LOWBAR, PORTCULLIS, CHEVELDEFRIES }
+    public enum DefenceTypes { LOWBAR, PORTCULLIS, CHEVELDEFRIES, TERRAIN }
 
     AutoTypes state = AutoTypes.SHOOT;
     DefenceTypes defenceType = DefenceTypes.PORTCULLIS;
@@ -29,7 +29,7 @@ public class Main extends IterativeRobot {
 
     @Override public void robotInit() {
 
-        Input.Encoder.SHOOTER.setReversed(false);
+        Input.Encoder.SHOOTER.setReversed(true);
         table.putNumber("AutoState", 0);
         table.putNumber("DefenceType", 0);
     }
@@ -62,7 +62,7 @@ public class Main extends IterativeRobot {
 
         System.out.println(Input.Encoder.DRIVE_RIGHT.getDistance());
 
-        if (Input.Encoder.SHOOTER.getVelocity() < -100) System.out.println(Input.Encoder.SHOOTER.getVelocity());
+        if (Input.Encoder.SHOOTER.getVelocity() > 100) System.out.println(Input.Encoder.SHOOTER.getVelocity());
     }
 
     @Override public void autonomousInit() {
@@ -82,6 +82,8 @@ public class Main extends IterativeRobot {
             case 1: defenceType = DefenceTypes.PORTCULLIS; break;
 
             case 2: defenceType = DefenceTypes.CHEVELDEFRIES; break;
+
+            case 3: defenceType = DefenceTypes.TERRAIN; break;
         }
     }
 
@@ -104,7 +106,7 @@ public class Main extends IterativeRobot {
                             case 0:
 
                                 autoTimeFlag = System.currentTimeMillis();
-                                Output.Solenoid.INTAKE.set(false);
+                                Output.Solenoid.INTAKE.set(true);
                                 subState++;
 
                                 break;
@@ -152,8 +154,8 @@ public class Main extends IterativeRobot {
 
                                 if (System.currentTimeMillis() - autoTimeFlag > 500) {
 
-                                    Output.Motor.DRIVE_LEFT.set(0.6);
-                                    Output.Motor.DRIVE_RIGHT.set(-0.6);
+                                    Output.Motor.DRIVE_LEFT.set(0.55);
+                                    Output.Motor.DRIVE_RIGHT.set(-0.55);
                                     Output.Motor.INTAKE_WHEELS.set(-1);
                                     autoTimeFlag = System.currentTimeMillis();
                                     subState++;
@@ -162,7 +164,7 @@ public class Main extends IterativeRobot {
 
                             case 2:
 
-                                if (System.currentTimeMillis() - autoTimeFlag > 3800) { //38003ws3
+                                if (System.currentTimeMillis() - autoTimeFlag > 3700) { //38003ws3
 
                                     Output.Motor.INTAKE_WHEELS.set(0);
                                     Output.Motor.DRIVE_LEFT.set(0);
@@ -206,8 +208,8 @@ public class Main extends IterativeRobot {
 
                                 if (System.currentTimeMillis() - autoTimeFlag > 500) {
 
-                                    Output.Motor.DRIVE_LEFT.set(0.4);
-                                    Output.Motor.DRIVE_RIGHT.set(-0.4);
+                                    Output.Motor.DRIVE_LEFT.set(0.30);
+                                    Output.Motor.DRIVE_RIGHT.set(-0.30);
                                     Output.Motor.INTAKE_WHEELS.set(1);
                                     autoTimeFlag = System.currentTimeMillis();
                                     subState++;
@@ -216,16 +218,29 @@ public class Main extends IterativeRobot {
 
                             case 2:
 
-                                if (System.currentTimeMillis() - autoTimeFlag > 6000) { //3800
+                                if (System.currentTimeMillis() - autoTimeFlag > 4000) { //3800
 
-                                    Output.Motor.INTAKE_WHEELS.set(0);
-                                    Output.Motor.DRIVE_LEFT.set(0);
-                                    Output.Motor.DRIVE_RIGHT.set(0);
+                                    Output.Solenoid.INTAKE.set(true);
+                                    Output.Motor.DRIVE_LEFT.set(0.6);
+                                    Output.Motor.DRIVE_RIGHT.set(-0.6);
+                                    autoTimeFlag = System.currentTimeMillis();
                                     subState++;
 
                                 } break;
 
                             case 3:
+
+                                if (System.currentTimeMillis() - autoTimeFlag > 2500) { //3800
+
+                                    Output.Motor.INTAKE_WHEELS.set(0);
+                                    Output.Motor.DRIVE_LEFT.set(0);
+                                    Output.Motor.DRIVE_RIGHT.set(0);
+                                    autoTimeFlag = System.currentTimeMillis();
+                                    subState++;
+
+                                } break;
+
+                            case 4:
 
                                 autoTimeFlag = System.currentTimeMillis();
                                 Output.Motor.DRIVE_LEFT.set(-0.4);
@@ -233,7 +248,7 @@ public class Main extends IterativeRobot {
                                 subState++;
 
                                 break;
-                            case 4:
+                            case 5:
 
                                 if (System.currentTimeMillis() - autoTimeFlag > 300) {
 
@@ -245,6 +260,46 @@ public class Main extends IterativeRobot {
 
                                 } break;
                         } break;
+
+                    case TERRAIN:
+
+                        switch (subState) {
+
+                            case 0:
+
+                                autoTimeFlag = System.currentTimeMillis();
+                                subState++;
+
+                                break;
+                            case 1:
+
+                                if (System.currentTimeMillis() - autoTimeFlag > 500) {
+
+                                    Output.Motor.DRIVE_LEFT.set(0.7);
+                                    Output.Motor.DRIVE_RIGHT.set(-0.7);
+                                    autoTimeFlag = System.currentTimeMillis();
+                                    subState++;
+
+                                } break;
+                            case 2:
+
+                                if (System.currentTimeMillis() - autoTimeFlag > 3600) {
+
+                                    Output.Motor.DRIVE_LEFT.set(0.09);
+                                    Output.Motor.DRIVE_RIGHT.set(-0.09);
+                                    subState++;
+
+                                } break;
+                            case 3:
+
+                                Output.Motor.DRIVE_LEFT.set(0);
+                                Output.Motor.DRIVE_RIGHT.set(0);
+                                state = AutoTypes.SHOOT;
+                                subState = 0;
+
+                                break;
+                        } break;
+
                 } break;
 
             case SHOOT:

@@ -18,6 +18,7 @@ public class Shooter {
 
     public void disabledInit() {
 
+        Primary.vibrate(0.0f);
         pid.reset();
         pid.setPID(preferences.getDouble("P", 0), preferences.getDouble("I", 0), preferences.getDouble("D", 0));
         state = 0;
@@ -99,6 +100,9 @@ public class Shooter {
                 break;
             case 2:
 
+                if (Math.abs(pid.getError()) < 70) Primary.vibrate(1f);
+                else Primary.vibrate(0.0f);
+
                 if (Primary.Button.B.isDownOnce()) {
 
                     Motor.INTAKE_ROLLERS.set(1);
@@ -106,6 +110,8 @@ public class Shooter {
 
                 } break;
             case 3:
+
+                Primary.vibrate(0.0f);
 
                 if (!Digital.BALL_DETECTED.get()) {
 

@@ -18,6 +18,12 @@ public class Controller {
 
     public static class Primary {
 
+        public static void vibrate(float rumble) {
+
+            joystick[0].setRumble(Joystick.RumbleType.kLeftRumble, rumble);
+            joystick[0].setRumble(Joystick.RumbleType.kRightRumble, rumble);
+        }
+
         public enum Button {
 
             A(1),

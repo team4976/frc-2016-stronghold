@@ -141,8 +141,8 @@ public class DriveTrain implements PIDOutput, PIDSource {
             if (Controller.Primary.DPad.EAST.isDownOnce()) tasks.add(new Object[] {TaskType.TURN, 90});
             if (Controller.Primary.DPad.WEST.isDownOnce()) tasks.add(new Object[] {TaskType.TURN, -90});
 
-            if (Controller.Primary.Button.Y.isDown()) Output.Solenoid.GEAR.set(true);
-            else if (Output.Solenoid.GEAR.get()) Output.Solenoid.GEAR.set(false);
+            if (Controller.Primary.Button.Y.isDown() && Output.Solenoid.GEAR.get()) Output.Solenoid.GEAR.set(false);
+            else if (!Controller.Primary.Button.Y.isDown() && !Output.Solenoid.GEAR.get()) Output.Solenoid.GEAR.set(true);
         }
 
         if (Controller.Primary.Button.BACK.isDownOnce()) {
