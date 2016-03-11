@@ -6,17 +6,17 @@ import edu.wpi.first.wpilibj.tables.ITable;
 
 public class Targeting {
 
-    public static final double ERROR = 5;
+    public static final double ERROR = 10;
 
     public ITable contours = NetworkTable.getTable("GRIP").getSubTable("GoalContours");
 
-    public boolean aim() {
+    public void aim() {
 
         Double[] centerX = contours.getNumberArray("centerX", new Double[]{0.0});
         Double[] width = contours.getNumberArray("width", new Double[]{0.0});
         Double[] area = contours.getNumberArray("area", new Double[]{0.0});
 
-        double largestArea = 149;
+        double largestArea = 149.0;
         int goalI = -1;
 
         for (int i = 0; i < area.length; i++)
@@ -35,12 +35,8 @@ public class Targeting {
                     Output.Motor.DRIVE_LEFT.set(-0.4);
                     Output.Motor.DRIVE_RIGHT.set(-0.4);
                 }
-            } else {
-                return true;
             }
         }
-
-        return false;
     }
 
 }
