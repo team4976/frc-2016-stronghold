@@ -8,7 +8,7 @@ public class Targeting {
 
     public static final double ERROR = 10;
 
-    public static final double ALIGNMENT_OFFSET = 165;
+    public static final double ALIGNMENT_OFFSET = 2;
 
     public ITable contours = NetworkTable.getTable("GRIP").getSubTable("GoalContours");
 
@@ -30,7 +30,7 @@ public class Targeting {
                 }
 
         if (goalI >= 0)
-            edge = centerX[goalI] + (width[goalI] / 2);
+            edge = centerX[goalI] + (width[goalI] / ALIGNMENT_OFFSET);
 
         return edge;
     }
@@ -38,17 +38,17 @@ public class Targeting {
     public boolean onTarget() {
         Double edge = getEdge();
         if (edge != null)
-            return (edge >= ALIGNMENT_OFFSET - ERROR && edge <= ALIGNMENT_OFFSET + ERROR);
+            return (edge >= 160 - ERROR && edge <= 160 + ERROR);
         return false;
     }
 
     public boolean aim() {
         Double edge = getEdge();
         if (!onTarget() && edge != null) {
-            if (edge < ALIGNMENT_OFFSET - ERROR) {
+            if (edge < 160 - ERROR) {
                 Output.Motor.DRIVE_LEFT.set(0.3);
                 Output.Motor.DRIVE_RIGHT.set(0.3);
-            } else if (edge > ALIGNMENT_OFFSET + ERROR) {
+            } else if (edge > 160 + ERROR) {
                 Output.Motor.DRIVE_LEFT.set(-0.3);
                 Output.Motor.DRIVE_RIGHT.set(-0.3);
             }

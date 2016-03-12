@@ -169,7 +169,7 @@ public class Main extends IterativeRobot {
 
                             case 2:
 
-                                if (System.currentTimeMillis() - autoTimeFlag > 4300) { //38003ws3
+                                if (System.currentTimeMillis() - autoTimeFlag > 3900) { //38003ws3
 
                                     Output.Motor.INTAKE_WHEELS.set(0);
                                     Output.Motor.DRIVE_LEFT.set(0);
@@ -331,5 +331,13 @@ public class Main extends IterativeRobot {
 //                } break;
         }
     }
+
+/*    @Override
+    public void testPeriodic() {
+        if (Math.abs(Controller.Primary.Stick.RIGHT.vertical()) > 0.1)
+            Output.Motor.SCALER.set(Controller.Primary.Stick.RIGHT.vertical());
+        else
+            Output.Motor.SCALER.set(0.0);
+    }*/
 
 }
