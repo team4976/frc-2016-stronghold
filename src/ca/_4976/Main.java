@@ -9,8 +9,8 @@ import edu.wpi.first.wpilibj.networktables.NetworkTable;
 
 public class Main extends IterativeRobot {
 
-    public enum  AutoTypes { BREACH, SHOOT }
-    public enum DefenceTypes { LOWBAR, PORTCULLIS, CHEVELDEFRIES, TERRAIN }
+    public enum  AutoTypes { BREACH, SHOOT, NOTHING }
+    public enum DefenceTypes { LOWBAR, PORTCULLIS, CHEVELDEFRIES, TERRAIN, NOTHING }
 
     AutoTypes state = AutoTypes.SHOOT;
     DefenceTypes defenceType = DefenceTypes.PORTCULLIS;
@@ -32,6 +32,7 @@ public class Main extends IterativeRobot {
         Input.Encoder.SHOOTER.setReversed(true);
         table.putNumber("AutoState", 0);
         table.putNumber("DefenceType", 0);
+        shooter.addTarget(targeting);
     }
 
     @Override public void disabledInit() {
@@ -50,8 +51,7 @@ public class Main extends IterativeRobot {
 
     @Override public void teleopPeriodic() {
 
-        if (Controller.Primary.Button.RIGHT_STICK.isDown())
-            targeting.aim();
+        if (Controller.Primary.Button.RIGHT_STICK.isDown() && !targeting.aim());
 
         else drive.teleopPeriodic();
 
@@ -67,23 +67,28 @@ public class Main extends IterativeRobot {
 
     @Override public void autonomousInit() {
 
+        Output.Solenoid.GEAR.set(true);
         subState = 0;
         switch ((int) table.getNumber("AutoState", 0)) {
 
-            case 0: state = AutoTypes.BREACH; break;
+            case 0: state = AutoTypes.NOTHING; break;
 
-            case 1: state = AutoTypes.SHOOT; break;
+            case 1: state = AutoTypes.BREACH; break;
+
+            case 2: state = AutoTypes.SHOOT; break;
         }
 
         switch ((int) table.getNumber("DefenceType", 0)) {
 
-            case 0: defenceType = DefenceTypes.LOWBAR; break;
+            case 0: defenceType = DefenceTypes.NOTHING; break;
 
-            case 1: defenceType = DefenceTypes.PORTCULLIS; break;
+            case 1: defenceType = DefenceTypes.LOWBAR; break;
 
-            case 2: defenceType = DefenceTypes.CHEVELDEFRIES; break;
+            case 2: defenceType = DefenceTypes.PORTCULLIS; break;
 
-            case 3: defenceType = DefenceTypes.TERRAIN; break;
+            case 3: defenceType = DefenceTypes.CHEVELDEFRIES; break;
+
+            case 4: defenceType = DefenceTypes.TERRAIN; break;
         }
     }
 
@@ -106,7 +111,7 @@ public class Main extends IterativeRobot {
                             case 0:
 
                                 autoTimeFlag = System.currentTimeMillis();
-                                Output.Solenoid.INTAKE.set(true);
+                                Output.Solenoid.INTAKE.set(false);
                                 subState++;
 
                                 break;
@@ -164,7 +169,7 @@ public class Main extends IterativeRobot {
 
                             case 2:
 
-                                if (System.currentTimeMillis() - autoTimeFlag > 3700) { //38003ws3
+                                if (System.currentTimeMillis() - autoTimeFlag > 4300) { //38003ws3
 
                                     Output.Motor.INTAKE_WHEELS.set(0);
                                     Output.Motor.DRIVE_LEFT.set(0);
@@ -176,8 +181,8 @@ public class Main extends IterativeRobot {
                             case 3:
 
                                     autoTimeFlag = System.currentTimeMillis();
-                                    Output.Motor.DRIVE_LEFT.set(-0.4);
-                                    Output.Motor.DRIVE_RIGHT.set(-0.4);
+                                    Output.Motor.DRIVE_LEFT.set(-0.4 * table.getNumber("direction", 0));
+                                    Output.Motor.DRIVE_RIGHT.set(-0.4 * table.getNumber("direction", 0));
                                     subState++;
 
                                 break;
@@ -221,6 +226,7 @@ public class Main extends IterativeRobot {
                                 if (System.currentTimeMillis() - autoTimeFlag > 4000) { //3800
 
                                     Output.Solenoid.INTAKE.set(true);
+                                    Output.Motor.INTAKE_WHEELS.set(0);
                                     Output.Motor.DRIVE_LEFT.set(0.6);
                                     Output.Motor.DRIVE_RIGHT.set(-0.6);
                                     autoTimeFlag = System.currentTimeMillis();
@@ -232,7 +238,6 @@ public class Main extends IterativeRobot {
 
                                 if (System.currentTimeMillis() - autoTimeFlag > 2500) { //3800
 
-                                    Output.Motor.INTAKE_WHEELS.set(0);
                                     Output.Motor.DRIVE_LEFT.set(0);
                                     Output.Motor.DRIVE_RIGHT.set(0);
                                     autoTimeFlag = System.currentTimeMillis();
@@ -243,8 +248,8 @@ public class Main extends IterativeRobot {
                             case 4:
 
                                 autoTimeFlag = System.currentTimeMillis();
-                                Output.Motor.DRIVE_LEFT.set(-0.4);
-                                Output.Motor.DRIVE_RIGHT.set(-0.4);
+                                Output.Motor.DRIVE_LEFT.set(-0.4 * table.getNumber("direction", 0));
+                                Output.Motor.DRIVE_RIGHT.set(-0.4 * table.getNumber("direction", 0));
                                 subState++;
 
                                 break;
@@ -304,33 +309,26 @@ public class Main extends IterativeRobot {
 
             case SHOOT:
 
-                /*switch (subState) {
-
-                    case 0:
-
-                        do {
-
-                            drive.ScheduleTask(DriveTrain.TaskType.AIM, startPosition < 2 ? 1d : -1d);
-
-                        } while (!drive.hasTasks());
-                        subState++;
-                        break;
-                    case 1:
-
-                        if (!drive.hasTasks()) subState++;
-
-                        break;
-                    case 2:
-
-                        shooter.cock();
-
-                        break;
-                    case 3:
-                        if (shooter.shoot()) subState++;
-
-                        break;
-
-                }*/ break;
+//                switch (subState) {
+//
+//                    case 0:
+//
+//                       targeting.aim();
+//
+//                        if (targeting.onTarget()) subState++;
+//
+//                        break;
+//                    case 1:
+//
+//                        shooter.cock();
+//                        subState++;
+//
+//                        break;
+//                    case 2:
+//                        if (shooter.shoot()) subState++;
+//
+//                        break;
+//                } break;
         }
     }
 

@@ -12,9 +12,12 @@ public class Shooter {
 
     PIDController pid = new PIDController(8.0e-6, 0, 1.0E-4, 0, Encoder.SHOOTER, Motor.SHOOTER);
     Preferences preferences = Preferences.getInstance();
+    Targeting targeting;
 
     int state = 0;
     long waitTimeFlag;
+
+    public void addTarget(Targeting targeting) { this.targeting = targeting; }
 
     public void disabledInit() {
 
@@ -100,7 +103,7 @@ public class Shooter {
                 break;
             case 2:
 
-                if (Math.abs(pid.getError()) < 70) Primary.vibrate(1f);
+                if (Math.abs(pid.getError()) < 70 && targeting.onTarget()) Primary.vibrate(1f);
                 else Primary.vibrate(0.0f);
 
                 if (Primary.Button.B.isDownOnce()) {
