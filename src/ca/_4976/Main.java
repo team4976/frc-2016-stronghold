@@ -332,12 +332,4 @@ public class Main extends IterativeRobot {
         }
     }
 
-/*    @Override
-    public void testPeriodic() {
-        if (Math.abs(Controller.Primary.Stick.RIGHT.vertical()) > 0.1)
-            Output.Motor.SCALER.set(Controller.Primary.Stick.RIGHT.vertical());
-        else
-            Output.Motor.SCALER.set(0.0);
-    }*/
-
 }
