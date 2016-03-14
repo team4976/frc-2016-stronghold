@@ -1,0 +1,22 @@
+## Intellij Idea ##
+
+.idea/
+*.iml
+
+## Eclipse ##
+
+.classpath
+.project
+
+## Floobits ##
+
+.flooignore
+.floo
+
+## build ##
+
+build/
+*.jar
+
+## FRC ##
+sysProps.xml
