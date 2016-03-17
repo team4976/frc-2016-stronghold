@@ -18,7 +18,7 @@ public class Main extends IterativeRobot {
     int subState = 0;
     int startPosition = 0;
 
-    NetworkTable table = NetworkTable.getTable("Auto_Select");
+    NetworkTable autonomous = NetworkTable.getTable("Auto_Select");
 
     long autoTimeFlag = System.currentTimeMillis();
 
@@ -30,8 +30,6 @@ public class Main extends IterativeRobot {
     @Override public void robotInit() {
 
         Input.Encoder.SHOOTER.setReversed(true);
-        table.putNumber("AutoState", 0);
-        table.putNumber("DefenceType", 0);
         shooter.addTarget(targeting);
     }
 
@@ -67,29 +65,33 @@ public class Main extends IterativeRobot {
 
     @Override public void autonomousInit() {
 
+        Output.Motor.DRIVE_LEFT.set(0);
+        Output.Motor.DRIVE_RIGHT.set(0);
+        Output.Motor.INTAKE_ROLLERS.set(0);
+        Output.Motor.INTAKE_WHEELS.set(0);
+        Output.Motor.SHOOTER.set(0);
+        Output.Motor.SCALER.set(0);
+
         Output.Solenoid.GEAR.set(true);
+
         subState = 0;
-        switch ((int) table.getNumber("AutoState", 0)) {
 
-            case 0: state = AutoTypes.NOTHING; break;
+        if (autonomous.getBooleanArray("AutoState", new boolean[2])[0]) state = AutoTypes.BREACH;
 
-            case 1: state = AutoTypes.BREACH; break;
+        else if (autonomous.getBooleanArray("AutoState", new boolean[] {false, false})[1]) state = AutoTypes.SHOOT;
 
-            case 2: state = AutoTypes.SHOOT; break;
-        }
+        else state = AutoTypes.NOTHING;
 
-        switch ((int) table.getNumber("DefenceType", 0)) {
 
-            case 0: defenceType = DefenceTypes.NOTHING; break;
+        if (autonomous.getBooleanArray("DefenceType", new boolean[4])[0]) defenceType = DefenceTypes.LOWBAR;
 
-            case 1: defenceType = DefenceTypes.LOWBAR; break;
+        else if (autonomous.getBooleanArray("DefenceType", new boolean[4])[1]) defenceType = DefenceTypes.PORTCULLIS;
 
-            case 2: defenceType = DefenceTypes.PORTCULLIS; break;
+        else if (autonomous.getBooleanArray("DefenceType", new boolean[4])[2]) defenceType = DefenceTypes.CHEVELDEFRIES;
 
-            case 3: defenceType = DefenceTypes.CHEVELDEFRIES; break;
+        else if (autonomous.getBooleanArray("DefenceType", new boolean[4])[3]) defenceType = DefenceTypes.TERRAIN;
 
-            case 4: defenceType = DefenceTypes.TERRAIN; break;
-        }
+        else defenceType = DefenceTypes.NOTHING;
     }
 
     @Override public void autonomousPeriodic() {
@@ -181,8 +183,8 @@ public class Main extends IterativeRobot {
                             case 3:
 
                                     autoTimeFlag = System.currentTimeMillis();
-                                    Output.Motor.DRIVE_LEFT.set(-0.4 * table.getNumber("direction", 0));
-                                    Output.Motor.DRIVE_RIGHT.set(-0.4 * table.getNumber("direction", 0));
+                                    Output.Motor.DRIVE_LEFT.set(-0.4 * autonomous.getNumber("direction", 0));
+                                    Output.Motor.DRIVE_RIGHT.set(-0.4 * autonomous.getNumber("direction", 0));
                                     subState++;
 
                                 break;
@@ -248,8 +250,8 @@ public class Main extends IterativeRobot {
                             case 4:
 
                                 autoTimeFlag = System.currentTimeMillis();
-                                Output.Motor.DRIVE_LEFT.set(-0.4 * table.getNumber("direction", 0));
-                                Output.Motor.DRIVE_RIGHT.set(-0.4 * table.getNumber("direction", 0));
+                                Output.Motor.DRIVE_LEFT.set(-0.4 * autonomous.getNumber("direction", 0));
+                                Output.Motor.DRIVE_RIGHT.set(-0.4 * autonomous.getNumber("direction", 0));
                                 subState++;
 
                                 break;
@@ -309,26 +311,32 @@ public class Main extends IterativeRobot {
 
             case SHOOT:
 
-//                switch (subState) {
-//
-//                    case 0:
-//
-//                       targeting.aim();
-//
-//                        if (targeting.onTarget()) subState++;
-//
-//                        break;
-//                    case 1:
-//
-//                        shooter.cock();
-//                        subState++;
-//
-//                        break;
-//                    case 2:
-//                        if (shooter.shoot()) subState++;
-//
-//                        break;
-//                } break;
+                if (!autonomous.getBooleanArray("AutoState", new boolean[2])[1]) {
+
+                    subState = -1;
+                    state = AutoTypes.NOTHING;
+                }
+
+                switch (subState) {
+
+                    case 0:
+
+                       targeting.aim();
+
+                        if (targeting.onTarget()) subState++;
+
+                        break;
+                    case 1:
+
+                        shooter.cock();
+                        subState++;
+
+                        break;
+                    case 2:
+                        if (shooter.shoot()) subState++;
+
+                        break;
+                } break;
         }
     }
 
