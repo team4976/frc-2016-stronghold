@@ -10,6 +10,9 @@ public class Targeting {
 
     public static final double ALIGNMENT_OFFSET = 2;
 
+
+    public static final double PID_SETPOINT = 0;  //TODO Midura add pidSetpoint
+
     public ITable contours = NetworkTable.getTable("GRIP").getSubTable("GoalContours");
 
     public Double getEdge() {
@@ -59,4 +62,5 @@ public class Targeting {
         return onTarget();
     }
 
+    public double pidGet() { return 0; } //TODO Midura add target
 }

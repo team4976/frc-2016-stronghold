@@ -7,7 +7,6 @@ import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.PIDSource;
 import edu.wpi.first.wpilibj.PIDSourceType;
-import edu.wpi.first.wpilibj.networktables.NetworkTable;
 
 import java.util.ArrayList;
 
@@ -15,8 +14,6 @@ public class DriveTrain implements PIDOutput, PIDSource {
 
     public enum TaskType { DRIVE, TURN, AIM}
 
-    double error = 1;
-    boolean flip = false;
     long timeFlag = System.currentTimeMillis();
 
     Double[][] pidConfiguration = {
@@ -28,8 +25,6 @@ public class DriveTrain implements PIDOutput, PIDSource {
     ArrayList<Object[]> tasks = new ArrayList();
 
     PIDController pid = new PIDController(0, 0, 0, this, this);
-
-    NetworkTable cameraProcess = NetworkTable.getTable("GRUB");
 
     Targeting targeting;
 
@@ -69,7 +64,7 @@ public class DriveTrain implements PIDOutput, PIDSource {
                             pid = new PIDController(pidConfiguration[2][0], pidConfiguration[2][1],
                                     pidConfiguration[2][2], this, this);
 
-                            pid.setSetpoint(0);
+                            pid.setSetpoint(Targeting.PID_SETPOINT);
                             timeFlag = System.currentTimeMillis();
                             pid.setOutputRange(-0.4, 0.4);
 
@@ -212,9 +207,7 @@ public class DriveTrain implements PIDOutput, PIDSource {
 
             case TURN: return Input.MXP.NAV_X.pidGet();
 
-            case AIM:
-
-                return cameraProcess.getNumber("TBD", 0);
+            case AIM: return targeting.pidGet();
         }
     }
 }
