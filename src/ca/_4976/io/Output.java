@@ -18,6 +18,8 @@ public class Output {
         Object[] motors;
         double modifier;
 
+        long timeFlag = System.currentTimeMillis();
+
         Motor(Object motor, double modifier) {
 
             this.motors = new Object[]{motor};
@@ -57,6 +59,8 @@ public class Output {
         }
 
         public void set(double speed) {
+
+            if (speed != 0) timeFlag = System.currentTimeMillis();
 
             for (Object i : motors) {
 
@@ -105,6 +109,8 @@ public class Output {
 
             return voltage / motors.length;
         }
+
+        public boolean hasStopped() { return timeFlag > 300; }
 
         @Override
         public void pidWrite(double speed) {

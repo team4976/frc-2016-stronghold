@@ -17,7 +17,7 @@ public class Shooter {
     int state = 0;
     long waitTimeFlag;
 
-    public void addTarget(Targeting targeting) { this.targeting = targeting; }
+    public void addTargetingSubsystem(Targeting targeting) { this.targeting = targeting; }
 
     public void disabledInit() {
 

@@ -5,32 +5,34 @@ import ca._4976.io.Input;
 import ca._4976.io.Output;
 import ca._4976.sub.*;
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
 
 public class Main extends IterativeRobot {
 
     public enum  AutoTypes { BREACH, SHOOT, NOTHING }
-    public enum DefenceTypes { LOWBAR, PORTCULLIS, CHEVELDEFRIES, TERRAIN, NOTHING }
+    public enum DefenceTypes { LOWBAR, PORTCULLIS, CHEVELDEFRISE, TERRAIN, NOTHING }
 
-    AutoTypes state = AutoTypes.SHOOT;
+    AutoTypes autoType = AutoTypes.SHOOT;
     DefenceTypes defenceType = DefenceTypes.PORTCULLIS;
 
-    int subState = 0;
-    int startPosition = 0;
-
-    NetworkTable autonomous = NetworkTable.getTable("Auto_Select");
+    int state = 0;
 
     long autoTimeFlag = System.currentTimeMillis();
 
+    NetworkTable autoSelectionTable = NetworkTable.getTable("Auto_Select");
     DriveTrain drive = new DriveTrain();
     Intake intake = new Intake();
     Shooter shooter = new Shooter();
     Targeting targeting = new Targeting();
+    PowerDistributionPanel panel = new PowerDistributionPanel(10);
 
     @Override public void robotInit() {
 
         Input.Encoder.SHOOTER.setReversed(true);
-        shooter.addTarget(targeting);
+        shooter.addTargetingSubsystem(targeting);
+        drive.addTargetingSubsystem(targeting);
+        panel.clearStickyFaults();
     }
 
     @Override public void disabledInit() {
@@ -49,18 +51,13 @@ public class Main extends IterativeRobot {
 
     @Override public void teleopPeriodic() {
 
-        if (Controller.Primary.Button.RIGHT_STICK.isDown() && !targeting.aim());
-
-        else drive.teleopPeriodic();
-
-        Output.Solenoid.CONTROLLER.periodic();
-
+        drive.teleopPeriodic();
         intake.teleopPeriodic();
         shooter.teleopPeriodic();
 
-        System.out.println(Input.Encoder.DRIVE_RIGHT.getDistance());
+        Output.Solenoid.CONTROLLER.periodic();
 
-        if (Input.Encoder.SHOOTER.getVelocity() > 100) System.out.println(Input.Encoder.SHOOTER.getVelocity());
+        if (Input.Encoder.SHOOTER.getVelocity() > 100) System.out.println("Shooter RPM: " + (int) Input.Encoder.SHOOTER.getVelocity());
     }
 
     @Override public void autonomousInit() {
@@ -74,22 +71,22 @@ public class Main extends IterativeRobot {
 
         Output.Solenoid.GEAR.set(true);
 
-        subState = 0;
+        state = 0;
 
-        if (autonomous.getBooleanArray("AutoState", new boolean[2])[0]) state = AutoTypes.BREACH;
+        if (autoSelectionTable.getBooleanArray("AutoState", new boolean[2])[0]) autoType = AutoTypes.BREACH;
 
-        else if (autonomous.getBooleanArray("AutoState", new boolean[] {false, false})[1]) state = AutoTypes.SHOOT;
+        else if (autoSelectionTable.getBooleanArray("AutoState", new boolean[] {false, false})[1]) autoType = AutoTypes.SHOOT;
 
-        else state = AutoTypes.NOTHING;
+        else autoType = AutoTypes.NOTHING;
 
 
-        if (autonomous.getBooleanArray("DefenceType", new boolean[4])[0]) defenceType = DefenceTypes.LOWBAR;
+        if (autoSelectionTable.getBooleanArray("DefenceType", new boolean[4])[0]) defenceType = DefenceTypes.LOWBAR;
 
-        else if (autonomous.getBooleanArray("DefenceType", new boolean[4])[1]) defenceType = DefenceTypes.PORTCULLIS;
+        else if (autoSelectionTable.getBooleanArray("DefenceType", new boolean[4])[1]) defenceType = DefenceTypes.PORTCULLIS;
 
-        else if (autonomous.getBooleanArray("DefenceType", new boolean[4])[2]) defenceType = DefenceTypes.CHEVELDEFRIES;
+        else if (autoSelectionTable.getBooleanArray("DefenceType", new boolean[4])[2]) defenceType = DefenceTypes.CHEVELDEFRISE;
 
-        else if (autonomous.getBooleanArray("DefenceType", new boolean[4])[3]) defenceType = DefenceTypes.TERRAIN;
+        else if (autoSelectionTable.getBooleanArray("DefenceType", new boolean[4])[3]) defenceType = DefenceTypes.TERRAIN;
 
         else defenceType = DefenceTypes.NOTHING;
     }
@@ -100,7 +97,7 @@ public class Main extends IterativeRobot {
 
         drive.autonomousPeriodic();
 
-        switch (state) {
+        switch (autoType) {
 
             case BREACH:
 
@@ -108,13 +105,13 @@ public class Main extends IterativeRobot {
 
                     case LOWBAR:
 
-                        switch (subState) {
+                        switch (state) {
 
                             case 0:
 
                                 autoTimeFlag = System.currentTimeMillis();
                                 Output.Solenoid.INTAKE.set(false);
-                                subState++;
+                                state++;
 
                                 break;
                             case 1:
@@ -124,7 +121,7 @@ public class Main extends IterativeRobot {
                                     Output.Motor.DRIVE_LEFT.set(1);
                                     Output.Motor.DRIVE_RIGHT.set(-1);
                                     autoTimeFlag = System.currentTimeMillis();
-                                    subState++;
+                                    state++;
 
                                 } break;
                             case 2:
@@ -133,28 +130,28 @@ public class Main extends IterativeRobot {
 
                                     Output.Motor.DRIVE_LEFT.set(0.09);
                                     Output.Motor.DRIVE_RIGHT.set(-0.09);
-                                    subState++;
+                                    state++;
 
                                 } break;
                             case 3:
 
                                 Output.Motor.DRIVE_LEFT.set(0);
                                 Output.Motor.DRIVE_RIGHT.set(0);
-                                state = AutoTypes.SHOOT;
-                                subState = 0;
+                                autoType = AutoTypes.SHOOT;
+                                state = 0;
 
                                 break;
                         } break;
 
                     case PORTCULLIS:
 
-                        switch (subState) {
+                        switch (state) {
 
                             case 0:
 
                                 autoTimeFlag = System.currentTimeMillis();
                                 Output.Solenoid.INTAKE.set(false);
-                                subState++;
+                                state++;
 
                                 break;
                             case 1:
@@ -165,7 +162,7 @@ public class Main extends IterativeRobot {
                                     Output.Motor.DRIVE_RIGHT.set(-0.55);
                                     Output.Motor.INTAKE_WHEELS.set(-1);
                                     autoTimeFlag = System.currentTimeMillis();
-                                    subState++;
+                                    state++;
 
                                 } break;
 
@@ -176,16 +173,16 @@ public class Main extends IterativeRobot {
                                     Output.Motor.INTAKE_WHEELS.set(0);
                                     Output.Motor.DRIVE_LEFT.set(0);
                                     Output.Motor.DRIVE_RIGHT.set(0);
-                                    subState++;
+                                    state++;
 
                                 } break;
 
                             case 3:
 
                                     autoTimeFlag = System.currentTimeMillis();
-                                    Output.Motor.DRIVE_LEFT.set(-0.4 * autonomous.getNumber("direction", 0));
-                                    Output.Motor.DRIVE_RIGHT.set(-0.4 * autonomous.getNumber("direction", 0));
-                                    subState++;
+                                    Output.Motor.DRIVE_LEFT.set(-0.4 * autoSelectionTable.getNumber("direction", 0));
+                                    Output.Motor.DRIVE_RIGHT.set(-0.4 * autoSelectionTable.getNumber("direction", 0));
+                                    state++;
 
                                 break;
                             case 4:
@@ -195,20 +192,20 @@ public class Main extends IterativeRobot {
 
                                     Output.Motor.DRIVE_LEFT.set(0);
                                     Output.Motor.DRIVE_RIGHT.set(0);
-                                    subState = 0;
-                                    state = AutoTypes.SHOOT;
+                                    state = 0;
+                                    autoType = AutoTypes.SHOOT;
 
                                 } break;
                         } break;
-                    case CHEVELDEFRIES:
+                    case CHEVELDEFRISE:
 
-                        switch (subState) {
+                        switch (state) {
 
                             case 0:
 
                                 autoTimeFlag = System.currentTimeMillis();
                                 Output.Solenoid.INTAKE.set(false);
-                                subState++;
+                                state++;
 
                                 break;
                             case 1:
@@ -219,7 +216,7 @@ public class Main extends IterativeRobot {
                                     Output.Motor.DRIVE_RIGHT.set(-0.30);
                                     Output.Motor.INTAKE_WHEELS.set(1);
                                     autoTimeFlag = System.currentTimeMillis();
-                                    subState++;
+                                    state++;
 
                                 } break;
 
@@ -232,7 +229,7 @@ public class Main extends IterativeRobot {
                                     Output.Motor.DRIVE_LEFT.set(0.6);
                                     Output.Motor.DRIVE_RIGHT.set(-0.6);
                                     autoTimeFlag = System.currentTimeMillis();
-                                    subState++;
+                                    state++;
 
                                 } break;
 
@@ -243,16 +240,16 @@ public class Main extends IterativeRobot {
                                     Output.Motor.DRIVE_LEFT.set(0);
                                     Output.Motor.DRIVE_RIGHT.set(0);
                                     autoTimeFlag = System.currentTimeMillis();
-                                    subState++;
+                                    state++;
 
                                 } break;
 
                             case 4:
 
                                 autoTimeFlag = System.currentTimeMillis();
-                                Output.Motor.DRIVE_LEFT.set(-0.4 * autonomous.getNumber("direction", 0));
-                                Output.Motor.DRIVE_RIGHT.set(-0.4 * autonomous.getNumber("direction", 0));
-                                subState++;
+                                Output.Motor.DRIVE_LEFT.set(-0.4 * autoSelectionTable.getNumber("direction", 0));
+                                Output.Motor.DRIVE_RIGHT.set(-0.4 * autoSelectionTable.getNumber("direction", 0));
+                                state++;
 
                                 break;
                             case 5:
@@ -262,20 +259,20 @@ public class Main extends IterativeRobot {
 
                                     Output.Motor.DRIVE_LEFT.set(0);
                                     Output.Motor.DRIVE_RIGHT.set(0);
-                                    subState = 0;
-                                    state = AutoTypes.SHOOT;
+                                    state = 0;
+                                    autoType = AutoTypes.SHOOT;
 
                                 } break;
                         } break;
 
                     case TERRAIN:
 
-                        switch (subState) {
+                        switch (state) {
 
                             case 0:
 
                                 autoTimeFlag = System.currentTimeMillis();
-                                subState++;
+                                state++;
 
                                 break;
                             case 1:
@@ -285,7 +282,7 @@ public class Main extends IterativeRobot {
                                     Output.Motor.DRIVE_LEFT.set(0.7);
                                     Output.Motor.DRIVE_RIGHT.set(-0.7);
                                     autoTimeFlag = System.currentTimeMillis();
-                                    subState++;
+                                    state++;
 
                                 } break;
                             case 2:
@@ -294,15 +291,15 @@ public class Main extends IterativeRobot {
 
                                     Output.Motor.DRIVE_LEFT.set(0.09);
                                     Output.Motor.DRIVE_RIGHT.set(-0.09);
-                                    subState++;
+                                    state++;
 
                                 } break;
                             case 3:
 
                                 Output.Motor.DRIVE_LEFT.set(0);
                                 Output.Motor.DRIVE_RIGHT.set(0);
-                                state = AutoTypes.SHOOT;
-                                subState = 0;
+                                autoType = AutoTypes.SHOOT;
+                                state = 0;
 
                                 break;
                         } break;
@@ -311,29 +308,29 @@ public class Main extends IterativeRobot {
 
             case SHOOT:
 
-                if (!autonomous.getBooleanArray("AutoState", new boolean[2])[1]) {
+                if (!autoSelectionTable.getBooleanArray("AutoState", new boolean[2])[1]) {
 
-                    subState = -1;
-                    state = AutoTypes.NOTHING;
+                    state = -1;
+                    autoType = AutoTypes.NOTHING;
                 }
 
-                switch (subState) {
+                switch (state) {
 
                     case 0:
 
                        targeting.aim();
 
-                        if (targeting.onTarget()) subState++;
+                        if (targeting.onTarget()) state++;
 
                         break;
                     case 1:
 
                         shooter.cock();
-                        subState++;
+                        state++;
 
                         break;
                     case 2:
-                        if (shooter.shoot()) subState++;
+                        if (shooter.shoot()) state++;
 
                         break;
                 } break;

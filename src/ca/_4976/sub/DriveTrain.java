@@ -31,7 +31,11 @@ public class DriveTrain implements PIDOutput, PIDSource {
 
     NetworkTable cameraProcess = NetworkTable.getTable("GRUB");
 
+    Targeting targeting;
+
     int taskState = 0;
+
+    public void addTargetingSubsystem(Targeting targeting) { this.targeting = targeting; }
 
     private void periodic() {
 
@@ -103,7 +107,11 @@ public class DriveTrain implements PIDOutput, PIDSource {
 
                         System.out.println(pid.getError());
 
-                        if (Input.Digital.IR_R.get() & Input.Digital.IR_L.get() & pid.getError() == 0) {
+                        if (
+                                tasks.get(0)[1].equals(0)
+                                && Output.Motor.DRIVE_LEFT.hasStopped()
+                                && Math.abs(pid.getError()) < 2
+                                ) {
 
                             tasks.remove(0);
                             pid.disable();
@@ -136,8 +144,11 @@ public class DriveTrain implements PIDOutput, PIDSource {
             Output.Motor.DRIVE_LEFT.set(power - steering);
             Output.Motor.DRIVE_RIGHT.set(-power - steering);
 
-            if (Controller.Primary.Button.LEFT_BUMPER.isDownOnce()) tasks.add(new Object[] {TaskType.AIM, 0});
-            if (Controller.Primary.Button.RIGHT_BUMPER.isDownOnce()) tasks.add(new Object[] {TaskType.AIM, 0});
+            if (Controller.Primary.Button.RIGHT_BUMPER.isDown() && tasks.size() < 1)
+                tasks.add(new Object[] {TaskType.AIM, 0});
+
+            else if (tasks.get(0)[0].equals(TaskType.AIM)) tasks.remove(0);
+
             if (Controller.Primary.DPad.EAST.isDownOnce()) tasks.add(new Object[] {TaskType.TURN, 90});
             if (Controller.Primary.DPad.WEST.isDownOnce()) tasks.add(new Object[] {TaskType.TURN, -90});
 
