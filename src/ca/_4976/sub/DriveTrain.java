@@ -15,23 +15,21 @@ public class DriveTrain implements PIDOutput, PIDSource {
 
     public enum TaskType { DRIVE, TURN, AIM}
 
-    long timeFlag = System.currentTimeMillis();
+    private final NetworkTable table = NetworkTable.getTable("PIDs");
 
-    NetworkTable table = NetworkTable.getTable("PIDs");
-
-    Double[][] pidConfiguration = {
+    private Double[][] pidConfiguration = {
         {0.0, 0.0, 0.0, 0.0},
         {0.0, 0.0, 0.0, 0.0},
         {0.003, 5.0e-5, 0.005, 0.0}
     };
 
-    ArrayList<Object[]> tasks = new ArrayList();
+    private ArrayList<Object[]> tasks = new ArrayList();
 
-    PIDController pid = new PIDController(0, 0, 0, this, this);
-u u f32
-    Targeting targeting;
+    private PIDController pid = new PIDController(0, 0, 0, this, this);
 
-    int taskState = 0;
+    private Targeting targeting;
+
+    private int taskState = 0;
 
     public void addTargetingSubsystem(Targeting targeting) { this.targeting = targeting; }
 
@@ -46,6 +44,8 @@ u u f32
                     switch ((TaskType) tasks.get(0)[0]) {
 
                         case DRIVE:
+
+                            pid.free();
 
                             pid = new PIDController(pidConfiguration[0][0], pidConfiguration[0][1],
                                     pidConfiguration[0][2], this, this);
@@ -68,7 +68,6 @@ u u f32
                                     table.getNumber("D", 0), this, this);
 
                             pid.setSetpoint(Targeting.PID_SETPOINT);
-                            timeFlag = System.currentTimeMillis();
                             pid.setOutputRange(-0.4, 0.4);
 
                             break;
@@ -109,7 +108,6 @@ u u f32
                                 tasks.get(0)[1].equals(0)
                                         && Output.Motor.DRIVE_LEFT.hasStopped()
                                         && Math.abs(pid.getError()) < 2
-                                        && false
                                 ) {
 
                             tasks.remove(0);
