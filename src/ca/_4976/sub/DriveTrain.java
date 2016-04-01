@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.PIDSource;
 import edu.wpi.first.wpilibj.PIDSourceType;
+import edu.wpi.first.wpilibj.networktables.NetworkTable;
 
 import java.util.ArrayList;
 
@@ -16,16 +17,18 @@ public class DriveTrain implements PIDOutput, PIDSource {
 
     long timeFlag = System.currentTimeMillis();
 
+    NetworkTable table = NetworkTable.getTable("PIDs");
+
     Double[][] pidConfiguration = {
         {0.0, 0.0, 0.0, 0.0},
         {0.0, 0.0, 0.0, 0.0},
-        {1.0, 0.0, 0.0, 0.0}
+        {0.003, 5.0e-5, 0.005, 0.0}
     };
 
     ArrayList<Object[]> tasks = new ArrayList();
 
     PIDController pid = new PIDController(0, 0, 0, this, this);
-
+u u f32
     Targeting targeting;
 
     int taskState = 0;
@@ -61,8 +64,8 @@ public class DriveTrain implements PIDOutput, PIDSource {
                             break;
                         case AIM:
 
-                            pid = new PIDController(pidConfiguration[2][0], pidConfiguration[2][1],
-                                    pidConfiguration[2][2], this, this);
+                            pid = new PIDController(table.getNumber("P", 0), table.getNumber("I", 0),
+                                    table.getNumber("D", 0), this, this);
 
                             pid.setSetpoint(Targeting.PID_SETPOINT);
                             timeFlag = System.currentTimeMillis();
@@ -104,8 +107,9 @@ public class DriveTrain implements PIDOutput, PIDSource {
 
                         if (
                                 tasks.get(0)[1].equals(0)
-                                && Output.Motor.DRIVE_LEFT.hasStopped()
-                                && Math.abs(pid.getError()) < 2
+                                        && Output.Motor.DRIVE_LEFT.hasStopped()
+                                        && Math.abs(pid.getError()) < 2
+                                        && false
                                 ) {
 
                             tasks.remove(0);
@@ -131,7 +135,7 @@ public class DriveTrain implements PIDOutput, PIDSource {
         if (tasks.size() == 0) {
 
             double steering = Controller.Primary.Stick.LEFT.horizontal();
-            steering = steering < 0 ? -steering * steering : steering * steering;
+            steering = steering > 0 ? -steering * steering : steering * steering;
             steering = Math.abs(steering) > 0.08 ? steering : 0;
 
             double power = Controller.Primary.Trigger.RIGHT.value() - Controller.Primary.Trigger.LEFT.value();
@@ -139,10 +143,10 @@ public class DriveTrain implements PIDOutput, PIDSource {
             Output.Motor.DRIVE_LEFT.set(power - steering);
             Output.Motor.DRIVE_RIGHT.set(-power - steering);
 
-            if (Controller.Primary.Button.RIGHT_BUMPER.isDown() && tasks.size() < 1)
+           if (Controller.Primary.Button.RIGHT_BUMPER.isDown() && tasks.size() < 1)
                 tasks.add(new Object[] {TaskType.AIM, 0});
 
-            else if (tasks.get(0)[0].equals(TaskType.AIM)) tasks.remove(0);
+            else if (tasks.size() > 0 && tasks.get(0)[0].equals(TaskType.AIM)) tasks.remove(0);
 
             if (Controller.Primary.DPad.EAST.isDownOnce()) tasks.add(new Object[] {TaskType.TURN, 90});
             if (Controller.Primary.DPad.WEST.isDownOnce()) tasks.add(new Object[] {TaskType.TURN, -90});
@@ -207,7 +211,9 @@ public class DriveTrain implements PIDOutput, PIDSource {
 
             case TURN: return Input.MXP.NAV_X.pidGet();
 
-            case AIM: return targeting.pidGet();
+            case AIM:
+                System.out.println(targeting.pidGet());
+                return targeting.pidGet();
         }
     }
 }

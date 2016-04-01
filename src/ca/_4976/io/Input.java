@@ -147,8 +147,8 @@ public class Input {
             nav.reset();
         }
 
-        public void getYaw() {
-            nav.getYaw();
+        public double getYaw() {
+            return nav.getYaw();
         }
 
         @Override

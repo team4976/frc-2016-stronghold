@@ -2,6 +2,9 @@ package ca._4976;
 
 import static ca._4976.io.Input.*;
 import static ca._4976.io.Output.*;
+
+import ca._4976.io.Input;
+import ca._4976.io.Output;
 import ca._4976.sub.*;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
@@ -9,7 +12,7 @@ import edu.wpi.first.wpilibj.networktables.NetworkTable;
 
 public class Main extends IterativeRobot {
 
-    public enum  AutoTypes { BREACH, SHOOT, NOTHING }
+    public enum  AutoTypes { BREACH, ALIGN, SHOOT, NOTHING }
     public enum DefenceTypes { LOWBAR, PORTCULLIS, CHEVELDEFRISE, TERRAIN, NOTHING }
 
     AutoTypes autoType = AutoTypes.SHOOT;
@@ -19,7 +22,7 @@ public class Main extends IterativeRobot {
 
     long autoTimeFlag = System.currentTimeMillis();
 
-    NetworkTable autoSelectionTable = NetworkTable.getTable("Auto_Select");
+    NetworkTable autoSelectionTable = NetworkTable.getTable("Autonomous Parameters");
     DriveTrain drive = new DriveTrain();
     Intake intake = new Intake();
     Shooter shooter = new Shooter();
@@ -88,6 +91,8 @@ public class Main extends IterativeRobot {
         else if (autoSelectionTable.getBooleanArray("DefenceType", new boolean[4])[3]) defenceType = DefenceTypes.TERRAIN;
 
         else defenceType = DefenceTypes.NOTHING;
+
+        autoType = AutoTypes.ALIGN;
     }
 
     @Override public void autonomousPeriodic() {
@@ -305,6 +310,67 @@ public class Main extends IterativeRobot {
 
                 } break;
 
+            case ALIGN:
+
+                if (autoSelectionTable.getBooleanArray("Aim + Shoot Config", new boolean[4])[1]) {
+
+                    switch (state) {
+
+                        case 0:
+
+                            System.out.println(MXP.NAV_X.getYaw());
+
+                            if (MXP.NAV_X.getYaw() < -40) {
+
+                                state++;
+                                Motor.DRIVE_LEFT.set(0);
+                                Motor.DRIVE_RIGHT.set(0);
+                                autoTimeFlag = System.currentTimeMillis();
+
+                            } else {
+
+                                Motor.DRIVE_LEFT.set(-0.3);
+                                Motor.DRIVE_RIGHT.set(-0.3);
+
+                            } break;
+                        case 1:
+
+                            if (System.currentTimeMillis() - autoTimeFlag > 1000) {
+
+                                state++;
+                                Motor.DRIVE_LEFT.set(0);
+                                Motor.DRIVE_RIGHT.set(0);
+
+                            } else {
+
+                                Motor.DRIVE_LEFT.set(1);
+                                Motor.DRIVE_RIGHT.set(-1);
+
+                            } break;
+                        case 2:
+
+                            if (targeting.centerX().length != 0) {
+
+                                state++;
+                                Motor.DRIVE_LEFT.set(0);
+                                Motor.DRIVE_RIGHT.set(0);
+
+                            } else {
+
+                                Motor.DRIVE_LEFT.set(0.3);
+                                Motor.DRIVE_RIGHT.set(0.3);
+                                state = 0;
+                                autoType = AutoTypes.SHOOT;
+
+                            } break;
+                    }
+
+                } else if (autoSelectionTable.getBooleanArray("Aim + Shoot Config", new boolean[4])[2]) {
+
+                    //TODO write turn Right drive
+
+                } break;
+
             case SHOOT:
 
                 if (!autoSelectionTable.getBooleanArray("AutoState", new boolean[2])[1]) {
@@ -317,7 +383,7 @@ public class Main extends IterativeRobot {
 
                     case 0:
 
-                        drive.ScheduleTask(DriveTrain.TaskType.AIM, 1d);
+                        drive.ScheduleTask(DriveTrain.TaskType.AIM, 0d);
 
                         if (Motor.DRIVE_LEFT.hasStopped() && targeting.onTarget()) state++;
 

@@ -1,6 +1,5 @@
 package ca._4976.sub;
 
-import ca._4976.io.Output;
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.tables.ITable;
 
@@ -8,59 +7,49 @@ public class Targeting {
 
     public static final double ERROR = 10;
 
-    public static final double ALIGNMENT_OFFSET = 2;
-
-
-    public static final double PID_SETPOINT = 0;  //TODO Midura add pidSetpoint
+    public static final double PID_SETPOINT = 0;
 
     public ITable contours = NetworkTable.getTable("GRIP").getSubTable("GoalContours");
 
-    public Double getEdge() {
-        Double edge = null;
+    public Double getLargestGoal() {
+
+        Double[] centerXs = contours.getNumberArray("centerX", new Double[]{0.0});
+
+        if (centerXs.length > 0) return contours.getNumberArray("centerX", new Double[]{0.0})[0] - 160;
+        else return 0d;
+
+        /*Double goalX = null;
 
         Double[] centerX = contours.getNumberArray("centerX", new Double[]{0.0});
-        Double[] width = contours.getNumberArray("width", new Double[]{0.0});
         Double[] area = contours.getNumberArray("area", new Double[]{0.0});
 
-        Double largestArea = 149.0;
-        int goalI = -1;
+        Double largestArea = 0.0;
 
-        if (area.length > 0 && centerX.length > 0 && width.length > 0)
+        if (area.length > 0 && centerX.length > 0)
             for (int i = 0; i < area.length; i++)
                 if (area[i] > largestArea) {
                     largestArea = area[i];
-                    goalI = i;
+                    goalX = centerX[i] - 160;
                 }
 
-        if (goalI >= 0)
-            edge = centerX[goalI] + (width[goalI] / ALIGNMENT_OFFSET);
-
-        return edge;
+        return goalX;*/
     }
 
     public boolean onTarget() {
-        Double edge = getEdge();
+        Double edge = getLargestGoal();
         if (edge != null)
             return (edge >= 160 - ERROR && edge <= 160 + ERROR);
         return false;
     }
 
-    public boolean aim() {
-        Double edge = getEdge();
-        if (!onTarget() && edge != null) {
-            if (edge < 160 - ERROR) {
-                Output.Motor.DRIVE_LEFT.set(0.3);
-                Output.Motor.DRIVE_RIGHT.set(0.3);
-            } else if (edge > 160 + ERROR) {
-                Output.Motor.DRIVE_LEFT.set(-0.3);
-                Output.Motor.DRIVE_RIGHT.set(-0.3);
-            }
-        } else {
-            Output.Motor.DRIVE_LEFT.set(0.0);
-            Output.Motor.DRIVE_RIGHT.set(0.0);
-        }
-        return onTarget();
+    public Double[] centerX() {
+        return contours.getNumberArray("centerX", new Double[]{0.0});
     }
 
-    public double pidGet() { return 0; } //TODO Midura add target
+    public Double pidGet() {
+        Double goalX = getLargestGoal();
+        if (goalX != null)
+            return goalX;
+        return 0.0;
+    }
 }
