@@ -42,8 +42,8 @@ public class Autonomous {
 
         state = 0;
 
-        autoConfig = autoSelectionTable.getBooleanArray("AutoState", new boolean[3]);
-        boolean[] defenceConfig = autoSelectionTable.getBooleanArray("DefenceType", new boolean[4]);
+        autoConfig = autoSelectionTable.getBooleanArray("Auto Config", new boolean[3]);
+        boolean[] defenceConfig = autoSelectionTable.getBooleanArray("Defence Config", new boolean[4]);
 
         if (autoConfig[0]) autoType = AutoTypes.BREACH;
 
@@ -289,10 +289,62 @@ public class Autonomous {
                     autoType = AutoTypes.SHOOT;
                 }
 
+
                 double alignConfig = autoSelectionTable.getNumber("Align Config", 0);
+
+                boolean far = autoSelectionTable.getBooleanArray("Aim + Shoot Config", new boolean[4])[3];
+
+                System.out.println(far);
+
+                if ((autoSelectionTable.getBooleanArray("Aim + Shoot Config", new boolean[0])[0] || far)
+                        && state == 0) state = 10;
 
                 switch (state) {
 
+                    case 10:
+
+                        autoTimeFlag = System.currentTimeMillis();
+                        state++;
+
+                        break;
+                    case 11:
+
+                        if (System.currentTimeMillis() - autoTimeFlag > (far ? 1000 : 450)) {
+
+                            if (far) {
+
+                                state++;
+
+                            } else {
+
+                                state = 0;
+                                autoType = AutoTypes.SHOOT;
+                            }
+
+                            Output.Motor.DRIVE_LEFT.set(0);
+                            Output.Motor.DRIVE_RIGHT.set(0);
+
+                        } else {
+
+                            Output.Motor.DRIVE_LEFT.set(1);
+                            Output.Motor.DRIVE_RIGHT.set(-1);
+
+                        } break;
+                    case 12:
+
+                        if (targeting.centerX().length != 0) {
+
+                            state = 0;
+                            autoType = AutoTypes.SHOOT;
+                            Output.Motor.DRIVE_LEFT.set(0);
+                            Output.Motor.DRIVE_RIGHT.set(0);
+
+                        } else {
+
+                            Output.Motor.DRIVE_LEFT.set(-0.3);
+                            Output.Motor.DRIVE_RIGHT.set(-0.3);
+
+                        } break;
                     case 0:
 
                         System.out.println(Input.MXP.NAV_X.getYaw());
@@ -304,7 +356,7 @@ public class Autonomous {
                             Output.Motor.DRIVE_RIGHT.set(0);
                             autoTimeFlag = System.currentTimeMillis();
 
-                        } else if (alignConfig < 0 && Input.MXP.NAV_X.getYaw() < 40) {
+                        } else if (alignConfig < 0 && Input.MXP.NAV_X.getYaw() > 40) {
 
                             state++;
                             Output.Motor.DRIVE_LEFT.set(0);
@@ -335,7 +387,8 @@ public class Autonomous {
 
                         if (targeting.centerX().length != 0) {
 
-                            state++;
+                            state = 0;
+                            autoType = AutoTypes.SHOOT;
                             Output.Motor.DRIVE_LEFT.set(0);
                             Output.Motor.DRIVE_RIGHT.set(0);
 
@@ -343,11 +396,10 @@ public class Autonomous {
 
                             Output.Motor.DRIVE_LEFT.set(0.3 * alignConfig);
                             Output.Motor.DRIVE_RIGHT.set(0.3 * alignConfig);
-                            state = 0;
-                            autoType = AutoTypes.SHOOT;
 
                         } break;
-                }
+
+                } break;
 
             case SHOOT:
 
@@ -363,15 +415,17 @@ public class Autonomous {
 
                         drive.ScheduleTask(DriveTrain.TaskType.AIM, 0d);
 
-                        if (Output.Motor.DRIVE_LEFT.hasStopped() && targeting.onTarget()) state++;
+                        if (drive.hasTasks()) state++;
 
                         break;
                     case 1:
 
-                        shooter.cock();
-                        state++;
+                        if (Output.Motor.DRIVE_LEFT.hasStopped() && targeting.onTarget()) {
 
-                        break;
+                            shooter.cock();
+                            state++;
+
+                        } break;
                     case 2:
 
                         if (shooter.shoot()) {

@@ -10,29 +10,36 @@ public class Targeting {
     public static final double PID_SETPOINT = 0;
 
     public ITable contours = NetworkTable.getTable("GRIP").getSubTable("GoalContours");
+    public ITable lines = NetworkTable.getTable("GRIP").getSubTable("GoalLines");
 
     public Double getLargestGoal() {
 
-        Double[] centerXs = contours.getNumberArray("centerX", new Double[]{0.0});
-
-        if (centerXs.length > 0) return contours.getNumberArray("centerX", new Double[]{0.0})[0] - 160;
-        else return 0d;
-
-        /*Double goalX = null;
+        Double goalX = null;
 
         Double[] centerX = contours.getNumberArray("centerX", new Double[]{0.0});
         Double[] area = contours.getNumberArray("area", new Double[]{0.0});
+        Double[] x1 = lines.getNumberArray("x1", new Double[] {0.0});
+        Double[] x2 = lines.getNumberArray("x2", new Double[] {0.0});
 
         Double largestArea = 0.0;
+
+        double angleOffset = 0;
+
+        if (x1.length > 0 && x1.length == x2.length)
+            for (int i = 0; i < x1.length; i++)
+                if (x2[i] - x1[i] > angleOffset) angleOffset = x2[i] - x1[i];
+
+        System.out.println("Angle: " + angleOffset);
+
 
         if (area.length > 0 && centerX.length > 0)
             for (int i = 0; i < area.length; i++)
                 if (area[i] > largestArea) {
                     largestArea = area[i];
-                    goalX = centerX[i] - 160;
+                    goalX = (centerX[i] + angleOffset / 2) - 160;
                 }
 
-        return goalX;*/
+        return goalX;
     }
 
     public boolean onTarget() {

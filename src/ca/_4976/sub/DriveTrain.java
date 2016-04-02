@@ -141,16 +141,24 @@ public class DriveTrain implements PIDOutput, PIDSource {
             Output.Motor.DRIVE_LEFT.set(power - steering);
             Output.Motor.DRIVE_RIGHT.set(-power - steering);
 
-           if (Controller.Primary.Button.RIGHT_BUMPER.isDown() && tasks.size() < 1)
+            if (Controller.Primary.Button.RIGHT_BUMPER.isDown() && tasks.size() < 1)
                 tasks.add(new Object[] {TaskType.AIM, 0});
 
-            else if (tasks.size() > 0 && tasks.get(0)[0].equals(TaskType.AIM)) tasks.remove(0);
 
             if (Controller.Primary.DPad.EAST.isDownOnce()) tasks.add(new Object[] {TaskType.TURN, 90});
             if (Controller.Primary.DPad.WEST.isDownOnce()) tasks.add(new Object[] {TaskType.TURN, -90});
 
             if (Controller.Primary.Button.Y.isDown() && Output.Solenoid.GEAR.get()) Output.Solenoid.GEAR.set(false);
             else if (!Controller.Primary.Button.Y.isDown() && !Output.Solenoid.GEAR.get()) Output.Solenoid.GEAR.set(true);
+        }
+
+        if (!Controller.Primary.Button.RIGHT_BUMPER.isDown()
+                && tasks.size() > 0
+                && tasks.get(0)[0] == TaskType.AIM) {
+
+            taskState = 0;
+            pid.disable();
+            tasks.remove(0);
         }
 
         if (Controller.Primary.Button.BACK.isDownOnce()) {
