@@ -64,10 +64,10 @@ public class DriveTrain implements PIDOutput, PIDSource {
                             break;
                         case AIM:
 
-                            pid = new PIDController(table.getNumber("P", 0), table.getNumber("I", 0),
-                                    table.getNumber("D", 0), this, this);
+                            pid = new PIDController(pidConfiguration[2][0], pidConfiguration[2][1],
+                                    pidConfiguration[2][2], this, this);
 
-                            pid.setSetpoint(Targeting.PID_SETPOINT);
+                            pid.setSetpoint(0);
                             pid.setOutputRange(-0.4, 0.4);
 
                             break;
@@ -218,8 +218,8 @@ public class DriveTrain implements PIDOutput, PIDSource {
             case TURN: return Input.MXP.NAV_X.pidGet();
 
             case AIM:
-                System.out.println(targeting.pidGet());
-                return targeting.pidGet();
+                System.out.println(targeting.getLargestGoal());
+                return targeting.getLargestGoal();
         }
     }
 }

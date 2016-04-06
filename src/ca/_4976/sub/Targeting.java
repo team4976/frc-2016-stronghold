@@ -5,58 +5,77 @@ import edu.wpi.first.wpilibj.tables.ITable;
 
 public class Targeting {
 
-    public static final double ERROR = 10;
+    private static final double ERROR = 10;
 
-    public static final double PID_SETPOINT = 0;
+    private ITable contours = NetworkTable.getTable("GRIP").getSubTable("GoalContours");
+    private ITable lines = NetworkTable.getTable("GRIP").getSubTable("GoalLines");
 
-    public ITable contours = NetworkTable.getTable("GRIP").getSubTable("GoalContours");
-    public ITable lines = NetworkTable.getTable("GRIP").getSubTable("GoalLines");
-
-    public Double getLargestGoal() {
-
-        Double goalX = null;
+    Double getLargestGoal() {
 
         Double[] centerX = contours.getNumberArray("centerX", new Double[]{0.0});
+        Double[] centerY = contours.getNumberArray("centerY", new Double[]{0.0});
         Double[] area = contours.getNumberArray("area", new Double[]{0.0});
+        Double[] height = contours.getNumberArray("height", new Double[]{0.0});
+        Double[] width = contours.getNumberArray("height", new Double[]{0.0});
         Double[] x1 = lines.getNumberArray("x1", new Double[] {0.0});
         Double[] x2 = lines.getNumberArray("x2", new Double[] {0.0});
+        Double[] y1 = lines.getNumberArray("y1", new Double[] {0.0});
+        Double[] y2 = lines.getNumberArray("y2", new Double[] {0.0});
 
-        Double largestArea = 0.0;
+        int selectedLine = 0;
 
-        double angleOffset = 0;
+        double largestArea = 0;
+        double longestLine = 0;
+        double selectedGoalXpos = 0;
+        double selectedGoalYpos = 0;
+        double selectedGoalWidth = 0;
+        double selectedGoalHeight = 0;
 
-        if (x1.length > 0 && x1.length == x2.length)
-            for (int i = 0; i < x1.length; i++)
-                if (x2[i] - x1[i] > angleOffset) angleOffset = x2[i] - x1[i];
 
-        System.out.println("Angle: " + angleOffset);
+        if (area.length > 0 && centerX.length > 0) {
 
-
-        if (area.length > 0 && centerX.length > 0)
             for (int i = 0; i < area.length; i++)
                 if (area[i] > largestArea) {
+
                     largestArea = area[i];
-                    goalX = (centerX[i] + angleOffset / 2) - 160;
+                    selectedGoalWidth = width[i];
+                    selectedGoalHeight = height[i];
+                    selectedGoalXpos = centerX[i] - selectedGoalWidth / 2;
+                    selectedGoalYpos = centerY[i] - selectedGoalHeight / 2;
+                }
+        }
+
+
+        if (x1.length > 0 && (x1.length == x2.length) == (y1.length == y2.length))
+            for (int i = 0; i < x2.length; i++) {
+
+                if (
+                        x1[i] >= selectedGoalXpos - 1 &&
+                        x1[i] <= selectedGoalXpos + selectedGoalWidth + 1 &&
+                        x2[i] >= selectedGoalXpos - 1 &&
+                        x2[i] <= selectedGoalXpos + selectedGoalWidth + 1 &&
+                        y1[i] >= selectedGoalYpos - 1 &&
+                        y1[i] <= selectedGoalYpos + selectedGoalHeight + 1 &&
+                        y2[i] >= selectedGoalYpos - 1 &&
+                        y2[i] <= selectedGoalYpos + selectedGoalHeight + 1
+                    ) {
+
+                    if (x2[i] - x1[i] > longestLine) {
+
+                        longestLine = x2[i] - x1[i];
+                        selectedLine = i;
+                    }
                 }
 
-        return goalX;
+            }
+
+        return (x2[selectedLine] - (longestLine / 2)) - 160;
     }
 
-    public boolean onTarget() {
+    boolean onTarget() {
         Double edge = getLargestGoal();
-        if (edge != null)
-            return (edge >= 160 - ERROR && edge <= 160 + ERROR);
-        return false;
+        return edge >= 160 - ERROR && edge <= 160 + ERROR;
     }
 
-    public Double[] centerX() {
-        return contours.getNumberArray("centerX", new Double[]{0.0});
-    }
-
-    public Double pidGet() {
-        Double goalX = getLargestGoal();
-        if (goalX != null)
-            return goalX;
-        return 0.0;
-    }
+    Double[] centerX() { return contours.getNumberArray("centerX", new Double[]{0.0}); }
 }
