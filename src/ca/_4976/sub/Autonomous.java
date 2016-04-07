@@ -6,10 +6,10 @@ import edu.wpi.first.wpilibj.networktables.NetworkTable;
 
 public class Autonomous {
 
-    private enum  AutoTypes { BREACH, ALIGN, SHOOT, NOTHING }
+    private enum  AutoTypes { BREACH, ALIGN, AIM, SHOOT, NOTHING }
     private enum DefenceTypes { LOWBAR, PORTCULLIS, CHEVELDEFRISE, TERRAIN, NOTHING }
 
-    private AutoTypes autoType = AutoTypes.SHOOT;
+    private AutoTypes autoType = AutoTypes.AIM;
     private DefenceTypes defenceType = DefenceTypes.PORTCULLIS;
 
     private int state = 0;
@@ -42,24 +42,24 @@ public class Autonomous {
 
         state = 0;
 
-        autoConfig = autoSelectionTable.getBooleanArray("Auto Config", new boolean[3]);
-        boolean[] defenceConfig = autoSelectionTable.getBooleanArray("Defence Config", new boolean[4]);
+        autoConfig = autoSelectionTable.getBooleanArray("Autonomous Selection", new boolean[3]);
+        double defenceConfig = autoSelectionTable.getNumber("Defence Selection", 0);
 
         if (autoConfig[0]) autoType = AutoTypes.BREACH;
 
         else if (autoConfig[1]) autoType = AutoTypes.ALIGN;
 
-        else if (autoConfig[2]) autoType = AutoTypes.SHOOT;
+        else if (autoConfig[2]) autoType = AutoTypes.AIM;
 
         else autoType = AutoTypes.NOTHING;
 
-        if (defenceConfig[0]) defenceType = DefenceTypes.LOWBAR;
+        if (defenceConfig == 1) defenceType = DefenceTypes.LOWBAR;
 
-        else if (defenceConfig[1]) defenceType = DefenceTypes.PORTCULLIS;
+        else if (defenceConfig == 2) defenceType = DefenceTypes.PORTCULLIS;
 
-        else if (defenceConfig[2]) defenceType = DefenceTypes.CHEVELDEFRISE;
+        else if (defenceConfig == 3) defenceType = DefenceTypes.CHEVELDEFRISE;
 
-        else if (defenceConfig[3]) defenceType = DefenceTypes.TERRAIN;
+        else if (defenceConfig == 4) defenceType = DefenceTypes.TERRAIN;
 
         else defenceType = DefenceTypes.NOTHING;
     }
@@ -112,7 +112,7 @@ public class Autonomous {
 
                                 Output.Motor.DRIVE_LEFT.set(0);
                                 Output.Motor.DRIVE_RIGHT.set(0);
-                                autoType = AutoTypes.SHOOT;
+                                autoType = AutoTypes.AIM;
                                 state = 0;
 
                                 break;
@@ -148,29 +148,12 @@ public class Autonomous {
                                     Output.Motor.INTAKE_WHEELS.set(0);
                                     Output.Motor.DRIVE_LEFT.set(0);
                                     Output.Motor.DRIVE_RIGHT.set(0);
-                                    state++;
+                                    state = 0;
+                                    autoType = AutoTypes.AIM;
 
                                 } break;
 
                             case 3:
-
-                                autoTimeFlag = System.currentTimeMillis();
-                                Output.Motor.DRIVE_LEFT.set(-0.4 * autoSelectionTable.getNumber("direction", 0));
-                                Output.Motor.DRIVE_RIGHT.set(-0.4 * autoSelectionTable.getNumber("direction", 0));
-                                state++;
-
-                                break;
-                            case 4:
-
-                                if (System.currentTimeMillis() - autoTimeFlag > 300) {
-
-
-                                    Output.Motor.DRIVE_LEFT.set(0);
-                                    Output.Motor.DRIVE_RIGHT.set(0);
-                                    state = 0;
-                                    autoType = AutoTypes.SHOOT;
-
-                                } break;
                         } break;
                     case CHEVELDEFRISE:
 
@@ -215,27 +198,8 @@ public class Autonomous {
                                     Output.Motor.DRIVE_LEFT.set(0);
                                     Output.Motor.DRIVE_RIGHT.set(0);
                                     autoTimeFlag = System.currentTimeMillis();
-                                    state++;
-
-                                } break;
-
-                            case 4:
-
-                                autoTimeFlag = System.currentTimeMillis();
-                                Output.Motor.DRIVE_LEFT.set(-0.4 * autoSelectionTable.getNumber("direction", 0));
-                                Output.Motor.DRIVE_RIGHT.set(-0.4 * autoSelectionTable.getNumber("direction", 0));
-                                state++;
-
-                                break;
-                            case 5:
-
-                                if (System.currentTimeMillis() - autoTimeFlag > 300) {
-
-
-                                    Output.Motor.DRIVE_LEFT.set(0);
-                                    Output.Motor.DRIVE_RIGHT.set(0);
                                     state = 0;
-                                    autoType = AutoTypes.SHOOT;
+                                    autoType = AutoTypes.AIM;
 
                                 } break;
                         } break;
@@ -273,7 +237,7 @@ public class Autonomous {
 
                                 Output.Motor.DRIVE_LEFT.set(0);
                                 Output.Motor.DRIVE_RIGHT.set(0);
-                                autoType = AutoTypes.SHOOT;
+                                autoType = AutoTypes.AIM;
                                 state = 0;
 
                                 break;
@@ -286,127 +250,140 @@ public class Autonomous {
                 if (!autoConfig[1]) {
 
                     state = 0;
-                    autoType = AutoTypes.SHOOT;
+                    autoType = AutoTypes.AIM;
                 }
 
+                double alignSelection = (int) autoSelectionTable.getNumber("Align Selection", 0);
 
-                double alignConfig = autoSelectionTable.getNumber("Align Config", 0);
+                int alignType = 0;
+                int direction = 0;
 
-                boolean far = autoSelectionTable.getBooleanArray("Aim + Shoot Config", new boolean[4])[3];
+                if (alignSelection == 2 || alignSelection == 4) {
 
-                System.out.println(far);
+                    alignType = 2;
+                    direction = (int) alignSelection - 3;
 
-                if ((autoSelectionTable.getBooleanArray("Aim + Shoot Config", new boolean[0])[0] || far)
-                        && state == 0) state = 10;
+                } else if (alignSelection != 0) alignType = 1;
 
-                switch (state) {
+                switch (alignType) {
 
-                    case 10:
-
-                        autoTimeFlag = System.currentTimeMillis();
-                        state++;
-
-                        break;
-                    case 11:
-
-                        if (System.currentTimeMillis() - autoTimeFlag > (far ? 1000 : 450)) {
-
-                            if (far) {
-
-                                state++;
-
-                            } else {
-
-                                state = 0;
-                                autoType = AutoTypes.SHOOT;
-                            }
-
-                            Output.Motor.DRIVE_LEFT.set(0);
-                            Output.Motor.DRIVE_RIGHT.set(0);
-
-                        } else {
-
-                            Output.Motor.DRIVE_LEFT.set(1);
-                            Output.Motor.DRIVE_RIGHT.set(-1);
-
-                        } break;
-                    case 12:
-
-                        if (targeting.centerX().length != 0) {
-
-                            state = 0;
-                            autoType = AutoTypes.SHOOT;
-                            Output.Motor.DRIVE_LEFT.set(0);
-                            Output.Motor.DRIVE_RIGHT.set(0);
-
-                        } else {
-
-                            Output.Motor.DRIVE_LEFT.set(-0.3);
-                            Output.Motor.DRIVE_RIGHT.set(-0.3);
-
-                        } break;
-                    case 0:
-
-                        System.out.println(Input.MXP.NAV_X.getYaw());
-
-                        if (alignConfig > 0 && Input.MXP.NAV_X.getYaw() < -40) {
-
-                            state++;
-                            Output.Motor.DRIVE_LEFT.set(0);
-                            Output.Motor.DRIVE_RIGHT.set(0);
-                            autoTimeFlag = System.currentTimeMillis();
-
-                        } else if (alignConfig < 0 && Input.MXP.NAV_X.getYaw() > 40) {
-
-                            state++;
-                            Output.Motor.DRIVE_LEFT.set(0);
-                            Output.Motor.DRIVE_RIGHT.set(0);
-                            autoTimeFlag = System.currentTimeMillis();
-
-                        } else {
-
-                            Output.Motor.DRIVE_LEFT.set(-0.3 * alignConfig);
-                            Output.Motor.DRIVE_RIGHT.set(-0.3 * alignConfig);
-
-                        } break;
                     case 1:
 
-                        if (System.currentTimeMillis() - autoTimeFlag > 1000) {
+                        switch (state) {
 
-                            state++;
-                            Output.Motor.DRIVE_LEFT.set(0);
-                            Output.Motor.DRIVE_RIGHT.set(0);
+                            case 0:
 
-                        } else {
+                                autoTimeFlag = System.currentTimeMillis();
+                                state++;
 
-                            Output.Motor.DRIVE_LEFT.set(1);
-                            Output.Motor.DRIVE_RIGHT.set(-1);
+                                break;
+                            case 1:
+
+                                if (System.currentTimeMillis() - autoTimeFlag > (alignSelection == 1 ? 1000 : 450)) {
+
+                                    Output.Motor.DRIVE_LEFT.set(0);
+                                    Output.Motor.DRIVE_RIGHT.set(0);
+
+                                    if (alignSelection == 1) state++;
+
+                                    else {
+
+                                        state = 0;
+                                        autoType =AutoTypes.AIM;
+                                    }
+
+                                } else {
+
+                                    Output.Motor.DRIVE_LEFT.set(1);
+                                    Output.Motor.DRIVE_RIGHT.set(-1);
+
+                                } break;
+                            case 2:
+
+                                if (targeting.centerX().length != 0) {
+
+                                    state = 0;
+                                    autoType = AutoTypes.AIM;
+                                    Output.Motor.DRIVE_LEFT.set(0);
+                                    Output.Motor.DRIVE_RIGHT.set(0);
+
+                                } else {
+
+                                    Output.Motor.DRIVE_LEFT.set(-0.3);
+                                    Output.Motor.DRIVE_RIGHT.set(-0.3);
+
+                                } break;
 
                         } break;
+
                     case 2:
 
-                        if (targeting.centerX().length != 0) {
+                        switch (state) {
 
-                            state = 0;
-                            autoType = AutoTypes.SHOOT;
-                            Output.Motor.DRIVE_LEFT.set(0);
-                            Output.Motor.DRIVE_RIGHT.set(0);
+                            case 0:
 
-                        } else {
+                                System.out.println(Input.MXP.NAV_X.getYaw());
 
-                            Output.Motor.DRIVE_LEFT.set(0.3 * alignConfig);
-                            Output.Motor.DRIVE_RIGHT.set(0.3 * alignConfig);
+                                if (direction > 0 && Input.MXP.NAV_X.getYaw() < -40) {
+
+                                    state++;
+                                    Output.Motor.DRIVE_LEFT.set(0);
+                                    Output.Motor.DRIVE_RIGHT.set(0);
+                                    autoTimeFlag = System.currentTimeMillis();
+
+                                } else if (direction < 0 && Input.MXP.NAV_X.getYaw() > 40) {
+
+                                    state++;
+                                    Output.Motor.DRIVE_LEFT.set(0);
+                                    Output.Motor.DRIVE_RIGHT.set(0);
+                                    autoTimeFlag = System.currentTimeMillis();
+
+                                } else {
+
+                                    Output.Motor.DRIVE_LEFT.set(-0.3 * direction);
+                                    Output.Motor.DRIVE_RIGHT.set(-0.3 * direction);
+
+                                } break;
+                            case 1:
+
+                                if (System.currentTimeMillis() - autoTimeFlag > 1000) {
+
+                                    state++;
+                                    Output.Motor.DRIVE_LEFT.set(0);
+                                    Output.Motor.DRIVE_RIGHT.set(0);
+
+                                } else {
+
+                                    Output.Motor.DRIVE_LEFT.set(1);
+                                    Output.Motor.DRIVE_RIGHT.set(-1);
+
+                                } break;
+                            case 2:
+
+                                if (targeting.centerX().length != 0) {
+
+                                    state = 0;
+                                    autoType = AutoTypes.AIM;
+                                    Output.Motor.DRIVE_LEFT.set(0);
+                                    Output.Motor.DRIVE_RIGHT.set(0);
+
+                                } else {
+
+                                    Output.Motor.DRIVE_LEFT.set(0.3 * direction);
+                                    Output.Motor.DRIVE_RIGHT.set(0.3 * direction);
+
+                                } break;
 
                         } break;
 
                 } break;
 
-            case SHOOT:
+            case AIM:
 
                 if (!autoConfig[2]) {
 
                     state = -1;
-                    autoType = AutoTypes.NOTHING;
+                    autoType = AutoTypes.SHOOT;
                 }
 
                 switch (state) {
@@ -422,8 +399,8 @@ public class Autonomous {
 
                         if (Output.Motor.DRIVE_LEFT.hasStopped() && targeting.onTarget()) {
 
-                            shooter.cock();
-                            state++;
+                            autoType = AutoTypes.SHOOT;
+                            state = 0;
 
                         } break;
                     case 2:
@@ -435,6 +412,32 @@ public class Autonomous {
 
                         } break;
                 } break;
+
+            case SHOOT: {
+
+                if (!autoConfig[3]) {
+
+                    state = -1;
+                    autoType = AutoTypes.NOTHING;
+                }
+
+                switch (state) {
+
+                    case 0:
+
+                        state++;
+                        shooter.cock();
+                        break;
+                    case 1:
+
+                        if (shooter.shoot()) {
+
+                            state++;
+                            shooter.disablePID();
+
+                        } break;
+                }
+            }
         }
     }
 }
