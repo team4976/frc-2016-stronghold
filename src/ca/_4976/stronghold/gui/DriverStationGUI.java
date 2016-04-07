@@ -6,10 +6,10 @@ import javax.swing.*;
 
 public class DriverStationGUI extends JFrame {
 
-    MainForm mainForm = new MainForm();
+    private MainForm mainForm = new MainForm();
 
-    NetworkTable selection;
-    NetworkTable status;
+    private NetworkTable selection;
+    private NetworkTable status;
 
     private DriverStationGUI() {
 
@@ -24,12 +24,7 @@ public class DriverStationGUI extends JFrame {
         NetworkTable.setIPAddress("localhost");
 
         selection = NetworkTable.getTable("Autonomous Parameters");
-        status = NetworkTable.getTable("System status");
-
-        status.putBoolean("RoboRio", false);
-        status.putBoolean("RaspberryPi", false);
-        status.putBoolean("Camera", false);
-        status.putBoolean("Grip", false);
+        status = NetworkTable.getTable("Status");
 
         long lastTick = System.currentTimeMillis();
 
@@ -46,17 +41,11 @@ public class DriverStationGUI extends JFrame {
 
     private void tick() {
 
-        selection.putBooleanArray("Auto Config", mainForm.getSelections()[0]);
-        selection.putBooleanArray("Defence Config", mainForm.getSelections()[1]);
-        selection.putBooleanArray("Aim + Shoot Config", mainForm.getSelections()[2]);
+        mainForm.setBallDetected(status.getBoolean("Ball Detected", false));
 
-
-        mainForm.setStatus(new boolean[] {
-                status.getBoolean("RoboRio", false) && status.isConnected(),
-                status.getBoolean("RaspberryPi", false) && status.isConnected(),
-                status.getBoolean("Camera", false) && status.isConnected(),
-                status.getBoolean("Grip", false) && status.isConnected()
-        });
+        selection.putBooleanArray("Autonomous Selection", mainForm.getAutoSelection());
+        selection.putNumber("Defence Selection", mainForm.getDefenceSelection());
+        selection.putNumber("Align Selection", mainForm.getAlignSelection());
     }
 
     public static void main(String[] args) { new DriverStationGUI(); }

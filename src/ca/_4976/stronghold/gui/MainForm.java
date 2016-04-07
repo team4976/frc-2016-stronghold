@@ -1,108 +1,74 @@
 package ca._4976.stronghold.gui;
 
-import sun.applet.Main;
-
 import javax.swing.*;
 import java.awt.*;
 
 public class MainForm {
-    
     public JPanel panel;
     private JCheckBox breachCheckBox;
+    private JCheckBox alignCheckBox;
+    private JCheckBox aimCheckBox;
     private JCheckBox shootCheckBox;
     private JRadioButton lowbarRadioButton;
     private JRadioButton portcullisRadioButton;
     private JRadioButton chevalDeFriseRadioButton;
     private JRadioButton terrainRadioButton;
-    private JRadioButton turnLeftRadioButton;
-    private JRadioButton turnRightRadioButton;
-    private JRadioButton dontTurnRadioButton;
-    private JCheckBox moveCloserCheckBox;
-    private JLabel roboRioStatus;
-    private JLabel piStatus;
-    private JLabel cameraStatus;
-    private JLabel gripStatus;
+    private JRadioButton lowbarRadioButton1;
+    private JRadioButton rightRadioButton;
+    private JRadioButton straightRadioButton;
+    private JRadioButton leftRadioButton;
+    private JLabel ballDetected;
 
-    public MainForm() {
-        
-        lowbarRadioButton.addActionListener(e -> onClickLowbarRadioButton());
-        portcullisRadioButton.addActionListener(e -> clickPortcullisRadioButton());
-        chevalDeFriseRadioButton.addActionListener(e -> onClickChevalDeFriseRadioButton());
-        terrainRadioButton.addActionListener(e -> onClickTerrainRadioButton());
-        dontTurnRadioButton.addActionListener(e -> onClickDontTurnRadioButton());
-        turnLeftRadioButton.addActionListener(e -> onClickTurnLeftRadioButton());
-        turnRightRadioButton.addActionListener(e -> onClickTurnRightRadioButton());
-    }
-    
-    public boolean[][] getSelections() {
+    private int defenceSelection = 0;
+    private int alignSelection = 0;
 
-        return new boolean[][] {
-                {breachCheckBox.isSelected(), shootCheckBox.isSelected()},
-                {lowbarRadioButton.isSelected(), portcullisRadioButton.isSelected(),
-                        chevalDeFriseRadioButton.isSelected(), terrainRadioButton.isSelected()},
-                {dontTurnRadioButton.isSelected(), turnLeftRadioButton.isSelected(),
-                        turnRightRadioButton.isSelected(), moveCloserCheckBox.isSelected()},
-        };
+    MainForm() {
+
+        lowbarRadioButton.addActionListener(e -> breachConfigSelection(1));
+        portcullisRadioButton.addActionListener(e -> breachConfigSelection(2));
+        chevalDeFriseRadioButton.addActionListener(e -> breachConfigSelection(3));
+        terrainRadioButton.addActionListener(e -> breachConfigSelection(4));
+
+        lowbarRadioButton1.addActionListener(e -> alignConfigSelection(1));
+        rightRadioButton.addActionListener(e -> alignConfigSelection(2));
+        straightRadioButton.addActionListener(e -> alignConfigSelection(3));
+        leftRadioButton.addActionListener(e -> alignConfigSelection(4));
     }
 
-    public void setStatus(boolean[] status) {
+    private void breachConfigSelection(int selection) {
 
-        roboRioStatus.setText(status[0] ? "OK" : "WAITING");
-        roboRioStatus.setForeground(status[0] ? Color.GREEN : Color.RED);
+        defenceSelection = selection;
 
-        piStatus.setText(status[1] ? "OK" : "WAITING");
-        piStatus.setForeground(status[1] ? Color.GREEN : Color.RED);
-        
-        cameraStatus.setText(status[2] ? "OK" : "WAITING");
-        cameraStatus.setForeground(status[2] ? Color.GREEN : Color.RED);
-
-        gripStatus.setText(status[3] ? "OK" : "WAITING");
-        gripStatus.setForeground(status[3] ? Color.GREEN : Color.RED);
-    }
-    
-    private void onClickLowbarRadioButton() {
-        
-        portcullisRadioButton.setSelected(false);
-        chevalDeFriseRadioButton.setSelected(false);
-        terrainRadioButton.setSelected(false);
-    }
-    
-    private void clickPortcullisRadioButton() {
-
-        lowbarRadioButton.setSelected(false);
-        chevalDeFriseRadioButton.setSelected(false);
-        terrainRadioButton.setSelected(false);
-    }
-    
-    private void onClickChevalDeFriseRadioButton() {
-        
-        lowbarRadioButton.setSelected(false);
-        portcullisRadioButton.setSelected(false);
-        terrainRadioButton.setSelected(false);
+        lowbarRadioButton.setSelected(selection == 1);
+        portcullisRadioButton.setSelected(selection == 2);
+        chevalDeFriseRadioButton.setSelected(selection == 3);
+        terrainRadioButton.setSelected(selection == 4);
     }
 
-    private void onClickTerrainRadioButton() {
-        
-        lowbarRadioButton.setSelected(false);
-        portcullisRadioButton.setSelected(false);
-        chevalDeFriseRadioButton.setSelected(false);
+    private void alignConfigSelection(int selection) {
+
+        alignSelection = selection;
+
+        lowbarRadioButton1.setSelected(selection == 1);
+        rightRadioButton.setSelected(selection == 2);
+        straightRadioButton.setSelected(selection == 3);
+        leftRadioButton.setSelected(selection == 4);
     }
 
-    private void onClickDontTurnRadioButton() {
-        
-        turnRightRadioButton.setSelected(false);
-        turnLeftRadioButton.setSelected(false);
-    }
-    
-    private void onClickTurnLeftRadioButton() {
-        
-        dontTurnRadioButton.setSelected(false);
-        turnRightRadioButton.setSelected(false);
+    void setBallDetected(boolean isDetected) {
+
+        ballDetected.setForeground(isDetected ? Color.GREEN : Color.red);
+        ballDetected.setText(isDetected ? "TRUE" : "FALSE");
     }
 
-    private void onClickTurnRightRadioButton() {
-        
-        dontTurnRadioButton.setSelected(false);
-        turnLeftRadioButton.setSelected(false);
-    }
+    int getAlignSelection() { return alignSelection; }
+
+    int getDefenceSelection() { return defenceSelection; }
+
+    boolean[] getAutoSelection() { return new boolean[] {
+            breachCheckBox.isSelected(),
+            alignCheckBox.isSelected(),
+            aimCheckBox.isSelected(),
+            shootCheckBox.isSelected()
+    }; }
 }
