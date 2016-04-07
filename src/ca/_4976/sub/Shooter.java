@@ -34,6 +34,7 @@ public class Shooter {
         state = 0;
         pid.enable();
         pid.setSetpoint(preferences.getInt("Shooter_RPM", 0));
+
         Solenoid.INTAKE.set(true);
     }
 

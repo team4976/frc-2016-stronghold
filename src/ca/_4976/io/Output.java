@@ -9,7 +9,7 @@ public class Output {
     public enum Motor implements PIDOutput {
 
         DRIVE_LEFT(new Object[] {new CANTalon(11), new CANTalon(12)}, -1.0),
-        DRIVE_RIGHT(new Object[] {new CANTalon(13), new Talon(14)}, -1.0),
+        DRIVE_RIGHT(new Object[] {new CANTalon(13), new CANTalon(14)}, -1.0),
         SHOOTER(new Object[]{new CANTalon(15), new Talon(0)}, -1.0),
         INTAKE_WHEELS(new Talon(2), -1.0),
         INTAKE_ROLLERS(new Talon(1), 1.0),
@@ -60,7 +60,9 @@ public class Output {
 
         public void set(double speed) {
 
-            if (speed != 0) timeFlag = System.currentTimeMillis();
+            System.out.println("Speed" + speed);
+
+            if (Math.abs(speed) < 0.2) timeFlag = System.currentTimeMillis();
 
             for (Object i : motors) {
 
@@ -110,7 +112,7 @@ public class Output {
             return voltage / motors.length;
         }
 
-        public boolean hasStopped() { return timeFlag > 300; }
+        public boolean hasStopped() { return timeFlag > 100; }
 
         @Override
         public void pidWrite(double speed) {

@@ -3,10 +3,7 @@ package ca._4976.sub;
 import ca._4976.io.Controller;
 import ca._4976.io.Input;
 import ca._4976.io.Output;
-import edu.wpi.first.wpilibj.PIDController;
-import edu.wpi.first.wpilibj.PIDOutput;
-import edu.wpi.first.wpilibj.PIDSource;
-import edu.wpi.first.wpilibj.PIDSourceType;
+import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
 
 import java.util.ArrayList;
@@ -15,7 +12,7 @@ public class DriveTrain implements PIDOutput, PIDSource {
 
     public enum TaskType { DRIVE, TURN, AIM}
 
-    private final NetworkTable table = NetworkTable.getTable("PIDs");
+    private final Preferences table = Preferences.getInstance();
 
     private Double[][] pidConfiguration = {
         {0.0, 0.0, 0.0, 0.0},
@@ -64,8 +61,8 @@ public class DriveTrain implements PIDOutput, PIDSource {
                             break;
                         case AIM:
 
-                            pid = new PIDController(pidConfiguration[2][0], pidConfiguration[2][1],
-                                    pidConfiguration[2][2], this, this);
+                            pid = new PIDController(table.getDouble("A_P", 0), table.getDouble("A_I", 0),
+                                    table.getDouble("A_D", 0), this, this);
 
                             pid.setSetpoint(0);
                             pid.setOutputRange(-0.4, 0.4);
@@ -138,8 +135,8 @@ public class DriveTrain implements PIDOutput, PIDSource {
 
             double power = Controller.Primary.Trigger.RIGHT.value() - Controller.Primary.Trigger.LEFT.value();
 
-            Output.Motor.DRIVE_LEFT.set(power - steering);
-            Output.Motor.DRIVE_RIGHT.set(-power - steering);
+            Output.Motor.DRIVE_LEFT.set(-power - steering);
+            Output.Motor.DRIVE_RIGHT.set(power - steering);
 
             if (Controller.Primary.Button.RIGHT_BUMPER.isDown() && tasks.size() < 1)
                 tasks.add(new Object[] {TaskType.AIM, 0});

@@ -59,22 +59,26 @@ public class Targeting {
                         y2[i] >= selectedGoalYPos - 1 &&
                         y2[i] <= selectedGoalYPos + selectedGoalHeight + 1
                     ) {
+                    if (x1[i] - x2[i] > longestLine) {
 
-                    if (x2[i] - x1[i] > longestLine) {
 
-                        longestLine = x2[i] - x1[i];
+                        longestLine = x1[i] - x2[i];
                         selectedLine = i;
                     }
                 }
 
             }
 
-        return (x2[selectedLine] - (longestLine / 2)) - 160;
+        if (x1.length > 0) return (x1[selectedLine] - (longestLine * 0.05)) - 160;
+
+        else return null;
     }
 
     boolean onTarget() {
-        Double edge = getLargestGoal();
-        return edge >= 160 - ERROR && edge <= 160 + ERROR;
+
+        if (getLargestGoal() != null) return Math.abs(getLargestGoal()) < ERROR;
+
+        else return false;
     }
 
     Double[] centerX() { return contours.getNumberArray("centerX", new Double[]{0.0}); }

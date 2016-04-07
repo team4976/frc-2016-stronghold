@@ -30,7 +30,9 @@ public class Autonomous {
     public void addTargeting(Targeting targeting) { this.targeting = targeting; }
 
     public void autonomousInit() {
-        
+
+        Input.MXP.NAV_X.reset();
+
         Output.Motor.DRIVE_LEFT.set(0);
         Output.Motor.DRIVE_RIGHT.set(0);
         Output.Motor.INTAKE_ROLLERS.set(0);
@@ -50,6 +52,8 @@ public class Autonomous {
         else if (autoConfig[1]) autoType = AutoTypes.ALIGN;
 
         else if (autoConfig[2]) autoType = AutoTypes.AIM;
+
+        else if (autoConfig[3]) autoType = AutoTypes.SHOOT;
 
         else autoType = AutoTypes.NOTHING;
 
@@ -93,18 +97,18 @@ public class Autonomous {
 
                                 if (System.currentTimeMillis() - autoTimeFlag > 500) {
 
-                                    Output.Motor.DRIVE_LEFT.set(1);
-                                    Output.Motor.DRIVE_RIGHT.set(-1);
+                                    Output.Motor.DRIVE_LEFT.set(-1);
+                                    Output.Motor.DRIVE_RIGHT.set(1);
                                     autoTimeFlag = System.currentTimeMillis();
                                     state++;
 
                                 } break;
                             case 2:
 
-                                if (System.currentTimeMillis() - autoTimeFlag > 3000) {
+                                if (System.currentTimeMillis() - autoTimeFlag > 1000) {
 
-                                    Output.Motor.DRIVE_LEFT.set(0.09);
-                                    Output.Motor.DRIVE_RIGHT.set(-0.09);
+                                    Output.Motor.DRIVE_LEFT.set(-0.09);
+                                    Output.Motor.DRIVE_RIGHT.set(0.09);
                                     state++;
 
                                 } break;
@@ -112,7 +116,7 @@ public class Autonomous {
 
                                 Output.Motor.DRIVE_LEFT.set(0);
                                 Output.Motor.DRIVE_RIGHT.set(0);
-                                autoType = AutoTypes.AIM;
+                                autoType = AutoTypes.ALIGN;
                                 state = 0;
 
                                 break;
@@ -133,8 +137,8 @@ public class Autonomous {
 
                                 if (System.currentTimeMillis() - autoTimeFlag > 500) {
 
-                                    Output.Motor.DRIVE_LEFT.set(0.55);
-                                    Output.Motor.DRIVE_RIGHT.set(-0.55);
+                                    Output.Motor.DRIVE_LEFT.set(-0.55);
+                                    Output.Motor.DRIVE_RIGHT.set(0.55);
                                     Output.Motor.INTAKE_WHEELS.set(-1);
                                     autoTimeFlag = System.currentTimeMillis();
                                     state++;
@@ -149,7 +153,7 @@ public class Autonomous {
                                     Output.Motor.DRIVE_LEFT.set(0);
                                     Output.Motor.DRIVE_RIGHT.set(0);
                                     state = 0;
-                                    autoType = AutoTypes.AIM;
+                                    autoType = AutoTypes.ALIGN;
 
                                 } break;
 
@@ -170,8 +174,8 @@ public class Autonomous {
 
                                 if (System.currentTimeMillis() - autoTimeFlag > 500) {
 
-                                    Output.Motor.DRIVE_LEFT.set(0.30);
-                                    Output.Motor.DRIVE_RIGHT.set(-0.30);
+                                    Output.Motor.DRIVE_LEFT.set(-0.30);
+                                    Output.Motor.DRIVE_RIGHT.set(0.30);
                                     Output.Motor.INTAKE_WHEELS.set(1);
                                     autoTimeFlag = System.currentTimeMillis();
                                     state++;
@@ -184,8 +188,8 @@ public class Autonomous {
 
                                     Output.Solenoid.INTAKE.set(true);
                                     Output.Motor.INTAKE_WHEELS.set(0);
-                                    Output.Motor.DRIVE_LEFT.set(0.6);
-                                    Output.Motor.DRIVE_RIGHT.set(-0.6);
+                                    Output.Motor.DRIVE_LEFT.set(-0.6);
+                                    Output.Motor.DRIVE_RIGHT.set(0.6);
                                     autoTimeFlag = System.currentTimeMillis();
                                     state++;
 
@@ -199,7 +203,7 @@ public class Autonomous {
                                     Output.Motor.DRIVE_RIGHT.set(0);
                                     autoTimeFlag = System.currentTimeMillis();
                                     state = 0;
-                                    autoType = AutoTypes.AIM;
+                                    autoType = AutoTypes.ALIGN;
 
                                 } break;
                         } break;
@@ -237,7 +241,7 @@ public class Autonomous {
 
                                 Output.Motor.DRIVE_LEFT.set(0);
                                 Output.Motor.DRIVE_RIGHT.set(0);
-                                autoType = AutoTypes.AIM;
+                                autoType = AutoTypes.ALIGN;
                                 state = 0;
 
                                 break;
@@ -289,13 +293,13 @@ public class Autonomous {
                                     else {
 
                                         state = 0;
-                                        autoType =AutoTypes.AIM;
+                                        autoType = AutoTypes.AIM;
                                     }
 
                                 } else {
 
-                                    Output.Motor.DRIVE_LEFT.set(1);
-                                    Output.Motor.DRIVE_RIGHT.set(-1);
+                                    Output.Motor.DRIVE_LEFT.set(-1);
+                                    Output.Motor.DRIVE_RIGHT.set(1);
 
                                 } break;
                             case 2:
@@ -354,8 +358,8 @@ public class Autonomous {
 
                                 } else {
 
-                                    Output.Motor.DRIVE_LEFT.set(1);
-                                    Output.Motor.DRIVE_RIGHT.set(-1);
+                                    Output.Motor.DRIVE_LEFT.set(-1);
+                                    Output.Motor.DRIVE_RIGHT.set(1);
 
                                 } break;
                             case 2:
@@ -397,7 +401,7 @@ public class Autonomous {
                         break;
                     case 1:
 
-                        if (Output.Motor.DRIVE_LEFT.hasStopped() && targeting.onTarget()) {
+                        if (Output.Motor.DRIVE_LEFT.hasStopped()) {
 
                             autoType = AutoTypes.SHOOT;
                             state = 0;
