@@ -36,7 +36,7 @@ public class Autonomous {
         Output.Motor.INTAKE_ROLLERS.set(0);
         Output.Motor.INTAKE_WHEELS.set(0);
         Output.Motor.SHOOTER.set(0);
-        Output.Motor.SCALER.set(0);
+        Output.Motor.SCALAR.set(0);
 
         Output.Solenoid.GEAR.set(true);
 

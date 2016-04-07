@@ -26,8 +26,8 @@ public class Targeting {
 
         double largestArea = 0;
         double longestLine = 0;
-        double selectedGoalXpos = 0;
-        double selectedGoalYpos = 0;
+        double selectedGoalXPos = 0;
+        double selectedGoalYPos = 0;
         double selectedGoalWidth = 0;
         double selectedGoalHeight = 0;
 
@@ -40,8 +40,8 @@ public class Targeting {
                     largestArea = area[i];
                     selectedGoalWidth = width[i];
                     selectedGoalHeight = height[i];
-                    selectedGoalXpos = centerX[i] - selectedGoalWidth / 2;
-                    selectedGoalYpos = centerY[i] - selectedGoalHeight / 2;
+                    selectedGoalXPos = centerX[i] - selectedGoalWidth / 2;
+                    selectedGoalYPos = centerY[i] - selectedGoalHeight / 2;
                 }
         }
 
@@ -50,14 +50,14 @@ public class Targeting {
             for (int i = 0; i < x2.length; i++) {
 
                 if (
-                        x1[i] >= selectedGoalXpos - 1 &&
-                        x1[i] <= selectedGoalXpos + selectedGoalWidth + 1 &&
-                        x2[i] >= selectedGoalXpos - 1 &&
-                        x2[i] <= selectedGoalXpos + selectedGoalWidth + 1 &&
-                        y1[i] >= selectedGoalYpos - 1 &&
-                        y1[i] <= selectedGoalYpos + selectedGoalHeight + 1 &&
-                        y2[i] >= selectedGoalYpos - 1 &&
-                        y2[i] <= selectedGoalYpos + selectedGoalHeight + 1
+                        x1[i] >= selectedGoalXPos - 1 &&
+                        x1[i] <= selectedGoalXPos + selectedGoalWidth + 1 &&
+                        x2[i] >= selectedGoalXPos - 1 &&
+                        x2[i] <= selectedGoalXPos + selectedGoalWidth + 1 &&
+                        y1[i] >= selectedGoalYPos - 1 &&
+                        y1[i] <= selectedGoalYPos + selectedGoalHeight + 1 &&
+                        y2[i] >= selectedGoalYPos - 1 &&
+                        y2[i] <= selectedGoalYPos + selectedGoalHeight + 1
                     ) {
 
                     if (x2[i] - x1[i] > longestLine) {
