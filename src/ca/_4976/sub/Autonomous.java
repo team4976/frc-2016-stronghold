@@ -197,7 +197,7 @@ public class Autonomous {
 
                             case 3:
 
-                                if (System.currentTimeMillis() - autoTimeFlag > 2500) { //3800
+                                if (System.currentTimeMillis() - autoTimeFlag > 1500) { //3800
 
                                     Output.Motor.DRIVE_LEFT.set(0);
                                     Output.Motor.DRIVE_RIGHT.set(0);

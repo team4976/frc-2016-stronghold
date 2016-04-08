@@ -59,17 +59,29 @@ public class Targeting {
                         y2[i] >= selectedGoalYPos - 1 &&
                         y2[i] <= selectedGoalYPos + selectedGoalHeight + 1
                     ) {
-                    if (x1[i] - x2[i] > longestLine) {
+                    if (Math.abs(x1[i] - x2[i]) > longestLine) {
 
-
-                        longestLine = x1[i] - x2[i];
+                        longestLine = Math.abs(x1[i] - x2[i]);
                         selectedLine = i;
                     }
                 }
 
             }
 
-        if (x1.length > 0) return (x1[selectedLine] - (longestLine * 0.05)) - 160;
+
+
+        if (x1.length > 0) {
+
+            double point = x1[selectedLine] > x2[selectedLine] ? x1[selectedLine] : x2[selectedLine];
+
+            System.out.println("Point: " + point);
+            System.out.println("X1: " + x1[selectedLine]);
+            System.out.println("X2: " + x2k[selectedLine]);
+            System.out.println("CenterX" + centerX[0]);
+            System.out.println("LONGEST: " + longestLine);
+
+            return (point + (longestLine * 0.5)) - 160;
+        }
 
         else return null;
     }

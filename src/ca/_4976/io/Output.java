@@ -60,8 +60,6 @@ public class Output {
 
         public void set(double speed) {
 
-            System.out.println("Speed" + speed);
-
             if (Math.abs(speed) < 0.2) timeFlag = System.currentTimeMillis();
 
             for (Object i : motors) {
