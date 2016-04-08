@@ -10,12 +10,12 @@ import static ca._4976.io.Controller.*;
 
 public class Shooter {
 
-    PIDController pid = new PIDController(8.0e-6, 0, 1.0E-4, 0, Encoder.SHOOTER, Motor.SHOOTER);
-    Preferences preferences = Preferences.getInstance();
-    Targeting targeting;
+    private PIDController pid = new PIDController(8.0e-6, 0, 1.0E-4, 0, Encoder.SHOOTER, Motor.SHOOTER);
+    private Preferences preferences = Preferences.getInstance();
+    private Targeting targeting;
 
-    int state = 0;
-    long waitTimeFlag;
+    private int state = 0;
+    private long waitTimeFlag;
 
     public void addTargetingSubsystem(Targeting targeting) { this.targeting = targeting; }
 
@@ -29,7 +29,7 @@ public class Shooter {
         Motor.SHOOTER.set(0);
     }
 
-    public void cock() {
+    void cock() {
 
         state = 0;
         pid.enable();
@@ -38,14 +38,14 @@ public class Shooter {
         Solenoid.INTAKE.set(true);
     }
 
-    public void disablePID() {
+    void disablePID() {
 
         pid.disable();
         pid.reset();
         Motor.SHOOTER.set(0);
     }
 
-    public boolean shoot() {
+    boolean shoot() {
 
         switch (state) {
 
@@ -70,6 +70,8 @@ public class Shooter {
 
                 if (System.currentTimeMillis() - waitTimeFlag > 500) {
 
+                    disablePID();
+                    Motor.INTAKE_ROLLERS.set(0);
                     return true;
 
                 } return false;
@@ -82,8 +84,7 @@ public class Shooter {
 
         switch (state) {
 
-            default:
-                break;
+            default: break;
 
             case 0:
 

@@ -4,13 +4,12 @@ import ca._4976.io.Controller;
 import ca._4976.io.Input;
 import ca._4976.io.Output;
 import edu.wpi.first.wpilibj.*;
-import edu.wpi.first.wpilibj.networktables.NetworkTable;
 
 import java.util.ArrayList;
 
 public class DriveTrain implements PIDOutput, PIDSource {
 
-    public enum TaskType { DRIVE, TURN, AIM}
+    enum TaskType { DRIVE, TURN, AIM}
 
     private final Preferences table = Preferences.getInstance();
 
@@ -20,7 +19,7 @@ public class DriveTrain implements PIDOutput, PIDSource {
         {0.003, 5.0e-5, 0.005, 0.0}
     };
 
-    private ArrayList<Object[]> tasks = new ArrayList();
+    private ArrayList<Object[]> tasks = new ArrayList<>();
 
     private PIDController pid = new PIDController(0, 0, 0, this, this);
 
@@ -38,7 +37,7 @@ public class DriveTrain implements PIDOutput, PIDSource {
 
                 if (tasks.size() > 0) {
 
-                    switch ((TaskType) tasks.get(0)[0]) {
+                    switch ((TaskType)  (tasks.get(0))[0]) {
 
                         case DRIVE:
 
@@ -47,19 +46,23 @@ public class DriveTrain implements PIDOutput, PIDSource {
                             pid = new PIDController(pidConfiguration[0][0], pidConfiguration[0][1],
                                     pidConfiguration[0][2], this, this);
 
-                            pid.setSetpoint((Double) tasks.get(0)[1]);
+                            pid.setSetpoint((Double) (tasks.get(0))[1]);
 
                             break;
                         case TURN:
+
+                            pid.free();
 
                             pid = new PIDController(pidConfiguration[1][0], pidConfiguration[1][1],
                                     pidConfiguration[1][2], this, this);
 
                             Input.MXP.NAV_X.reset();
-                            pid.setSetpoint((Double) tasks.get(0)[1]);
+                            pid.setSetpoint((Double) (tasks.get(0))[1]);
 
                             break;
                         case AIM:
+
+                            pid.free();
 
                             pid = new PIDController(table.getDouble("A_P", 0), table.getDouble("A_I", 0),
                                     table.getDouble("A_D", 0), this, this);
@@ -76,7 +79,7 @@ public class DriveTrain implements PIDOutput, PIDSource {
                 } break;
             case 1:
 
-                switch ((TaskType) tasks.get(0)[0]) {
+                switch ((TaskType) (tasks.get(0))[0]) {
 
                     case DRIVE:
 
@@ -102,7 +105,7 @@ public class DriveTrain implements PIDOutput, PIDSource {
                         System.out.println(pid.getError());
 
                         if (
-                                tasks.get(0)[1].equals(0)
+                                (tasks.get(0))[1].equals(0)
                                         && Output.Motor.DRIVE_LEFT.hasStopped()
                                         && Math.abs(pid.getError()) < 2
                                 ) {
@@ -168,9 +171,9 @@ public class DriveTrain implements PIDOutput, PIDSource {
 
     public void autonomousPeriodic() { periodic(); }
 
-    public void ScheduleTask(TaskType taskType, Double taskValue) { tasks.add(new Object[] {taskType, taskValue}); }
+    void ScheduleTask(TaskType taskType, Double taskValue) { tasks.add(new Object[] {taskType, taskValue}); }
 
-    public boolean hasTasks() { return tasks.size() > 0; }
+    boolean hasTasks() { return tasks.size() > 0; }
 
     @Override public void pidWrite(double output) {
 
@@ -215,8 +218,17 @@ public class DriveTrain implements PIDOutput, PIDSource {
             case TURN: return Input.MXP.NAV_X.pidGet();
 
             case AIM:
-                System.out.println(targeting.getLargestGoal());
-                return targeting.getLargestGoal();
+
+                if (targeting.pidGet() == null) {
+
+                    tasks.remove(0);
+                    pid.disable();
+                    pid.reset();
+                    pid.free();
+
+                    return 0;
+
+                } else return targeting.pidGet();
         }
     }
 }
