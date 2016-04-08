@@ -83,19 +83,19 @@ public class Targeting {
 
                     boolean insideContour = true;
 
-                    if (x1[i] < (contour.centerX - (contour.width / 2)) - 10 ||
+                    if (x1.length <= i || x1[i] < (contour.centerX - (contour.width / 2)) - 10 ||
                             x1[i] > (contour.centerX + (contour.width / 2)) + 10) insideContour = false;
 
-                    if (x2[i] < (contour.centerX - (contour.width / 2)) - 10 ||
+                    if (x2.length <= i ||x2[i] < (contour.centerX - (contour.width / 2)) - 10 ||
                             x2[i] > (contour.centerX + (contour.width / 2)) + 10) insideContour = false;
 
-                    if (y1[i] < (contour.centerY - (contour.height / 2)) - 10 ||
+                    if (y1.length <= i || y1[i] < (contour.centerY - (contour.height / 2)) - 10 ||
                             y1[i] > (contour.centerY + (contour.height / 2)) + 10) insideContour = false;
 
-                    if (y2[i] < (contour.centerY - (contour.height / 2)) - 10 ||
+                    if (y2.length <= i || y2[i] < (contour.centerY - (contour.height / 2)) - 10 ||
                             y2[i] > (contour.centerY + (contour.height / 2)) + 10) insideContour = false;
 
-                    if (Math.abs(x1[i] - x2[i]) > longestLine) {
+                    if (insideContour && Math.abs(x1[i] - x2[i]) > longestLine) {
 
                         longestLine = Math.abs(x1[i] - x2[i]);
                         selection = i;

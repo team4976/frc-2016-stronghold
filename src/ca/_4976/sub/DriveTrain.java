@@ -222,13 +222,15 @@ public class DriveTrain implements PIDOutput, PIDSource {
 
             case AIM:
 
-                System.out.println("Error: " + targeting.pidGet());
+                Double value = targeting.pidGet();
 
-                if (targeting.pidGet() == null) {
+                System.out.println("Error: " + value);
+
+                if (value == null) {
 
                     return 0;
 
-                } else return targeting.pidGet();
+                } else return value;
         }
     }
 }
