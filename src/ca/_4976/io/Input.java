@@ -10,9 +10,7 @@ public class Input {
 
     public enum Digital {
 
-        BALL_DETECTED(0, true, false),
-        IR_L(1, false, true),
-        IR_R(2, false, true);
+        BALL_DETECTED(0, true, false);
 
         DigitalInput input;
         boolean inverted;

@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj.tables.ITable;
 
 public class Targeting {
 
-    private class Contour{
+    private class Contour {
 
         Double centerX = null;
         Double centerY = null;
@@ -13,7 +13,7 @@ public class Targeting {
         Double height = null;
         Double width = null;
 
-        private Contour(
+        private Contour (
 
                 Double centerX,
                 Double centerY,
@@ -55,8 +55,8 @@ public class Targeting {
                 selection = i;
             }
 
-        if (centerX.length <= selection && centerY.length <= selection &&
-             height.length <= selection && width.length <= selection)
+        if (centerX.length > selection && centerY.length > selection &&
+             height.length > selection && width.length > selection)
 
             return new Contour(centerX[selection],  centerY[selection],
                     area[selection], height[selection], width[selection]);
@@ -83,19 +83,19 @@ public class Targeting {
 
                     boolean insideContour = true;
 
-                    if (x1[i] < (contour.centerX - (contour.width / 2)) - 4 ||
-                            x1[i] > (contour.centerX + (contour.width / 2)) - 4) insideContour = false;
+                    if (x1[i] < (contour.centerX - (contour.width / 2)) - 10 ||
+                            x1[i] > (contour.centerX + (contour.width / 2)) + 10) insideContour = false;
 
-                    if (x2[i] < (contour.centerX - (contour.width / 2)) - 4 ||
-                            x2[i] > (contour.centerX + (contour.width / 2)) - 4) insideContour = false;
+                    if (x2[i] < (contour.centerX - (contour.width / 2)) - 10 ||
+                            x2[i] > (contour.centerX + (contour.width / 2)) + 10) insideContour = false;
 
-                    if (y1[i] < (contour.centerY - (contour.height / 2)) - 4 ||
-                            y1[i] > (contour.centerY + (contour.height / 2)) - 4) insideContour = false;
+                    if (y1[i] < (contour.centerY - (contour.height / 2)) - 10 ||
+                            y1[i] > (contour.centerY + (contour.height / 2)) + 10) insideContour = false;
 
-                    if (y2[i] < (contour.centerY - (contour.height / 2)) - 4 ||
-                            y2[i] > (contour.centerY + (contour.height / 2)) - 4) insideContour = false;
+                    if (y2[i] < (contour.centerY - (contour.height / 2)) - 10 ||
+                            y2[i] > (contour.centerY + (contour.height / 2)) + 10) insideContour = false;
 
-                    if (insideContour && Math.abs(x1[i] - x2[i]) > longestLine) {
+                    if (Math.abs(x1[i] - x2[i]) > longestLine) {
 
                         longestLine = Math.abs(x1[i] - x2[i]);
                         selection = i;
@@ -103,7 +103,10 @@ public class Targeting {
                 }
             }
 
-        if (selection != null) return x2[selection] > x1[selection] ? x2[selection] : x1[selection];
+        if (selection != null) {
+
+            return (x2[selection] > x1[selection] ? x2[selection] : x1[selection]) - 160;
+        }
 
         else return null;
     }

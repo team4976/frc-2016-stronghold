@@ -19,7 +19,7 @@ public class DriveTrain implements PIDOutput, PIDSource {
         {0.003, 5.0e-5, 0.005, 0.0}
     };
 
-    private ArrayList<Object[]> tasks = new ArrayList<>();
+    private ArrayList<Object[]> tasks = new ArrayList();
 
     private PIDController pid = new PIDController(0, 0, 0, this, this);
 
@@ -79,43 +79,46 @@ public class DriveTrain implements PIDOutput, PIDSource {
                 } break;
             case 1:
 
-                switch ((TaskType) (tasks.get(0))[0]) {
+                if (tasks.size() > 0)
+                    switch ((TaskType) (tasks.get(0))[0]) {
 
-                    case DRIVE:
+                        case DRIVE:
 
-                        if (pid.getError() < 5 && Input.Encoder.DRIVE_RIGHT.hasStopped()) {
+                            if (pid.getError() < 5 && Input.Encoder.DRIVE_RIGHT.hasStopped()) {
 
-                            tasks.remove(0);
-                            pid.disable();
-                            taskState = 0;
+                                tasks.remove(0);
+                                pid.disable();
+                                taskState = 0;
 
-                        } break;
+                            } break;
 
-                    case TURN:
+                        case TURN:
 
-                        if (pid.getError() < 5 && Input.Encoder.DRIVE_RIGHT.hasStopped()) {
+                            if (pid.getError() < 5 && Input.Encoder.DRIVE_RIGHT.hasStopped()) {
 
-                            tasks.remove(0);
-                            pid.disable();
-                            taskState = 0;
+                                tasks.remove(0);
+                                pid.disable();
+                                taskState = 0;
 
-                        } break;
-                    case AIM:
+                            } break;
+                        case AIM:
 
-                        System.out.println(pid.getError());
+                            if (!pid.isEnabled()) break;
 
-                        if (
-                                (tasks.get(0))[1].equals(0)
-                                        && Output.Motor.DRIVE_LEFT.hasStopped()
-                                        && Math.abs(pid.getError()) < 2
-                                ) {
+                            System.out.println(pid.getError());
 
-                            tasks.remove(0);
-                            pid.disable();
-                            taskState = 0;
+                            if (
+                                    (tasks.get(0))[1].equals(0)
+                                            && Output.Motor.DRIVE_LEFT.hasStopped()
+                                            && Math.abs(pid.getError()) < 2
+                                    ) {
 
-                        } break;
-                }
+                                tasks.remove(0);
+                                pid.disable();
+                                taskState = 0;
+
+                            } break;
+                    }
         }
     }
 
@@ -219,12 +222,9 @@ public class DriveTrain implements PIDOutput, PIDSource {
 
             case AIM:
 
-                if (targeting.pidGet() == null) {
+                System.out.println("Error: " + targeting.pidGet());
 
-                    tasks.remove(0);
-                    pid.disable();
-                    pid.reset();
-                    pid.free();
+                if (targeting.pidGet() == null) {
 
                     return 0;
 
