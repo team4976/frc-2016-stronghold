@@ -401,7 +401,7 @@ public class Autonomous {
                         break;
                     case 1:
 
-                        if (Output.Motor.DRIVE_LEFT.hasStopped()) {
+                        if (Output.Motor.DRIVE_LEFT.hasStopped() && Math.abs(targeting.pidGet()) < 10) {
 
                             autoType = AutoTypes.SHOOT;
                             state = 0;

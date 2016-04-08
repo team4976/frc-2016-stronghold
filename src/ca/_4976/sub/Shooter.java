@@ -17,6 +17,8 @@ public class Shooter {
     private int state = 0;
     private long waitTimeFlag;
 
+    boolean last = false;
+
     public void addTargetingSubsystem(Targeting targeting) { this.targeting = targeting; }
 
     public void disabledInit() {
@@ -122,12 +124,15 @@ public class Shooter {
 
                 Primary.vibrate(0.0f);
 
-                if (!Digital.BALL_DETECTED.get()) {
+                if (!Digital.BALL_DETECTED.get() && last == true) {
 
                     waitTimeFlag = System.currentTimeMillis();
                     state = 4;
 
-                } break;
+                }
+
+                last = Digital.BALL_DETECTED.get();
+                break;
             case 4:
 
                 if (System.currentTimeMillis() - waitTimeFlag > 500) {
