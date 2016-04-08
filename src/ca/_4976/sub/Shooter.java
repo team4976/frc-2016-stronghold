@@ -82,6 +82,14 @@ public class Shooter {
 
     public void teleopPeriodic() {
 
+        if (Primary.Button.X.isDownOnce()) {
+
+            pid.disable();
+            pid.reset();
+            Motor.SHOOTER.set(0);
+            state = 0;
+        }
+
         switch (state) {
 
             default: break;
@@ -93,14 +101,10 @@ public class Shooter {
                 break;
             case 1:
 
-                if (Digital.BALL_DETECTED.get()) {
-
-                    pid.setSetpoint(preferences.getInt("Shooter_RPM", 0));
-                    pid.enable();
-                    Output.Solenoid.INTAKE.set(true);
-                    state = 2;
-
-                } else state = 0;
+                pid.setSetpoint(preferences.getInt("Shooter_RPM", 0));
+                pid.enable();
+                Output.Solenoid.INTAKE.set(true);
+                state = 2;
 
                 break;
             case 2:
