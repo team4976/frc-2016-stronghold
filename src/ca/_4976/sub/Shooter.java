@@ -111,7 +111,7 @@ public class Shooter {
                 break;
             case 2:
 
-                if (Math.abs(pid.getError()) < 70 && targeting.onTarget()) Primary.vibrate(1f);
+                if (Math.abs(pid.getError()) < 70) Primary.vibrate(1f);
                 else Primary.vibrate(0.0f);
 
                 if (Primary.Button.B.isDownOnce()) {
@@ -124,7 +124,7 @@ public class Shooter {
 
                 Primary.vibrate(0.0f);
 
-                if (!Digital.BALL_DETECTED.get() && last == true) {
+                if (!Digital.BALL_DETECTED.get() && last) {
 
                     waitTimeFlag = System.currentTimeMillis();
                     state = 4;

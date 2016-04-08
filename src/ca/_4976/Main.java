@@ -37,6 +37,8 @@ public class Main extends IterativeRobot {
 
     @Override public void teleopInit() {
 
+        drive.disabledInit();
+
         Solenoid.CONTROLLER.init();
         Encoder.DRIVE_RIGHT.reset();
     }

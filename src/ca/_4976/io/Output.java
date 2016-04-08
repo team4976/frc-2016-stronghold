@@ -131,6 +131,7 @@ public class Output {
     public enum Solenoid {
 
         GEAR(0, 1),
+        SCALER(2, 3),
         INTAKE(5, 4),
         CONTROLLER;
 

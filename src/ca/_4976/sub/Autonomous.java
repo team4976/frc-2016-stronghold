@@ -147,7 +147,7 @@ public class Autonomous {
 
                             case 2:
 
-                                if (System.currentTimeMillis() - autoTimeFlag > 3900) { //38003ws3
+                                if (System.currentTimeMillis() - autoTimeFlag > 3600) { //38003ws3
 
                                     Output.Motor.INTAKE_WHEELS.set(0);
                                     Output.Motor.DRIVE_LEFT.set(0);
@@ -197,7 +197,7 @@ public class Autonomous {
 
                             case 3:
 
-                                if (System.currentTimeMillis() - autoTimeFlag > 1500) { //3800
+                                if (System.currentTimeMillis() - autoTimeFlag > 1700) { //3800
 
                                     Output.Motor.DRIVE_LEFT.set(0);
                                     Output.Motor.DRIVE_RIGHT.set(0);
@@ -222,18 +222,18 @@ public class Autonomous {
 
                                 if (System.currentTimeMillis() - autoTimeFlag > 500) {
 
-                                    Output.Motor.DRIVE_LEFT.set(0.7);
-                                    Output.Motor.DRIVE_RIGHT.set(-0.7);
+                                    Output.Motor.DRIVE_LEFT.set(-0.7);
+                                    Output.Motor.DRIVE_RIGHT.set(0.7);
                                     autoTimeFlag = System.currentTimeMillis();
                                     state++;
 
                                 } break;
                             case 2:
 
-                                if (System.currentTimeMillis() - autoTimeFlag > 3600) {
+                                if (System.currentTimeMillis() - autoTimeFlag > 2900) {
 
-                                    Output.Motor.DRIVE_LEFT.set(0.09);
-                                    Output.Motor.DRIVE_RIGHT.set(-0.09);
+                                    Output.Motor.DRIVE_LEFT.set(-0.09);
+                                    Output.Motor.DRIVE_RIGHT.set(0.09);
                                     state++;
 
                                 } break;
@@ -350,7 +350,7 @@ public class Autonomous {
                                 } break;
                             case 1:
 
-                                if (System.currentTimeMillis() - autoTimeFlag > 1000) {
+                                if (System.currentTimeMillis() - autoTimeFlag > 400) {
 
                                     state++;
                                     Output.Motor.DRIVE_LEFT.set(0);
@@ -401,12 +401,14 @@ public class Autonomous {
                         break;
                     case 1:
 
-                        if (Output.Motor.DRIVE_LEFT.hasStopped() && Math.abs(targeting.pidGet()) < 10) {
+                            Double error = targeting.pidGet();
 
-                            autoType = AutoTypes.SHOOT;
-                            state = 0;
+                            if (Output.Motor.DRIVE_LEFT.hasStopped() && error != null && Math.abs(error) < 10) {
 
-                        } break;
+                                autoType = AutoTypes.SHOOT;
+                                state = 0;
+
+                            } break;
                     case 2:
 
                         if (shooter.shoot()) {
