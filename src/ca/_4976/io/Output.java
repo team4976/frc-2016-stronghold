@@ -177,7 +177,7 @@ public class Output {
 
             } else if (solenoid.get() == kOff) onTimerStart = System.currentTimeMillis();
 
-            else if (System.currentTimeMillis() - onTimerStart > 500) solenoid.set(kOff);
+            else if (System.currentTimeMillis() - onTimerStart > 5000) solenoid.set(kOff);
         }
     }
 }

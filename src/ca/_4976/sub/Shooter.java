@@ -1,5 +1,6 @@
 package ca._4976.sub;
 
+import ca._4976.io.Input;
 import ca._4976.io.Output;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.Preferences;
@@ -16,6 +17,7 @@ public class Shooter {
 
     private int state = 0;
     private long waitTimeFlag;
+    private long onDelayFlag = System.currentTimeMillis();
 
     boolean last = false;
 
@@ -53,7 +55,7 @@ public class Shooter {
 
             case 0:
 
-                if (Math.abs(pid.getError()) < 80) {
+                if (Math.abs(pid.getError()) < 50) {
 
                     Motor.INTAKE_ROLLERS.set(1);
                     state++;
@@ -84,8 +86,11 @@ public class Shooter {
 
     public void teleopPeriodic() {
 
+        System.out.println(Digital.BALL_DETECTED.get());
+
         if (Primary.Button.X.isDownOnce()) {
 
+            Primary.vibrate(0);
             pid.disable();
             pid.reset();
             Motor.SHOOTER.set(0);
@@ -98,7 +103,7 @@ public class Shooter {
 
             case 0:
 
-                if (Primary.Button.B.isDownOnce()) state = 1;
+                if (Primary.Button.B.isDownOnce() || Primary.Button.RIGHT_BUMPER.isDownOnce()) state = 1;
 
                 break;
             case 1:
@@ -111,10 +116,16 @@ public class Shooter {
                 break;
             case 2:
 
-                if (Math.abs(pid.getError()) < 70) Primary.vibrate(1f);
-                else Primary.vibrate(0.0f);
+                if (!(Math.abs(pid.getError()) < 50)) {
+                    Primary.vibrate(0.0f);
+                    onDelayFlag = System.currentTimeMillis();
+                } else {
+                    if (System.currentTimeMillis() - onDelayFlag > 300)
+                        Primary.vibrate(1f);
+                    else Primary.vibrate(0.0f);
+                }
 
-                if (Primary.Button.B.isDownOnce()) {
+                if (Primary.Button.B.isDownOnce() && Math.abs(pid.getError()) < 70) {
 
                     Motor.INTAKE_ROLLERS.set(1);
                     state = 3;

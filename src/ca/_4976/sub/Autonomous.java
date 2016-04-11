@@ -105,7 +105,7 @@ public class Autonomous {
                                 } break;
                             case 2:
 
-                                if (System.currentTimeMillis() - autoTimeFlag > 1000) {
+                                if (System.currentTimeMillis() - autoTimeFlag > 1500) {
 
                                     Output.Motor.DRIVE_LEFT.set(-0.09);
                                     Output.Motor.DRIVE_RIGHT.set(0.09);
@@ -230,7 +230,7 @@ public class Autonomous {
                                 } break;
                             case 2:
 
-                                if (System.currentTimeMillis() - autoTimeFlag > 2900) {
+                                if (System.currentTimeMillis() - autoTimeFlag > 3400) {
 
                                     Output.Motor.DRIVE_LEFT.set(-0.09);
                                     Output.Motor.DRIVE_RIGHT.set(0.09);
@@ -288,13 +288,8 @@ public class Autonomous {
                                     Output.Motor.DRIVE_LEFT.set(0);
                                     Output.Motor.DRIVE_RIGHT.set(0);
 
-                                    if (alignSelection == 1) state++;
-
-                                    else {
-
-                                        state = 0;
-                                        autoType = AutoTypes.AIM;
-                                    }
+                                    state = 0;
+                                    autoType = AutoTypes.AIM;
 
                                 } else {
 
